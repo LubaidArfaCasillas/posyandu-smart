@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0D9488">
+  <meta name="description" content="PosyanduSmart - Platform Digitalisasi KMS dan Deteksi Dini Stunting Balita Standar WHO & Kemenkes RI">
+  <link rel="manifest" href="manifest.json">
+  <title>PosyanduSmart | Digitalisasi KMS & Deteksi Dini Stunting</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="brand-group">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            <path d="M12 5v14"/>
+            <path d="M5 12h14"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-name">Posyandu<span>Smart</span></h1>
+          <p class="brand-tagline">Deteksi Dini Stunting & KMS Digital</p>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="status-badge" id="networkStatus">
+          <span class="status-dot"></span>
+          <span class="status-text">Online (Siap Offline)</span>
+        </div>
+        
+        <button id="btnInstallPWA" class="btn btn-outline btn-install" style="display: none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Pasang Aplikasi</span>
+        </button>
+
+        <a href="#kalkulator" class="btn btn-primary btn-sm">Mulai Hitung</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="pill-badge">
+          <span class="badge-icon">👶</span> Standar Baku Antropometri WHO & Kemenkes RI
+        </div>
+        <h2 class="hero-title">
+          Timbang Balita, Deteksi <span class="text-gradient">Risiko Stunting</span> Seketika.
+        </h2>
+        <p class="hero-desc">
+          Solusi digital praktis untuk kader Posyandu. Cukup masukkan hasil timbangan, sistem otomatis menganalisis status gizi dan mengirimkan laporan tumbuh kembang langsung ke WhatsApp orang tua.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#kalkulator" class="btn btn-primary btn-lg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="2" width="16" height="20" rx="2"/>
+              <line x1="8" y1="6" x2="16" y2="6"/>
+              <line x1="16" y1="14" x2="16" y2="18"/>
+              <path d="M16 10h.01"/>
+              <path d="M12 10h.01"/>
+              <path d="M8 10h.01"/>
+              <path d="M12 14h.01"/>
+              <path d="M8 14h.01"/>
+              <path d="M12 18h.01"/>
+              <path d="M8 18h.01"/>
+            </svg>
+            Kalkulator KMS Balita
+          </a>
+          <a href="#portal-peran" class="btn btn-secondary btn-lg">
+            Lihat Alur Kerja
+          </a>
+        </div>
+
+        <!-- Highlight Highlights -->
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-num text-teal">0 Detik</div>
+            <div class="stat-label">Hitung Otomatis Z-Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num text-emerald">100%</div>
+            <div class="stat-label">Terhubung WhatsApp</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num text-blue">PWA</div>
+            <div class="stat-label">Bisa Berjalan Offline</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-preview">
+        <div class="hero-card-glass">
+          <div class="card-header-glass">
+            <div class="circle red"></div>
+            <div class="circle yellow"></div>
+            <div class="circle green"></div>
+            <span class="card-title-mini">Posyandu Dahlia 04 • Deteksi Terkini</span>
+          </div>
+          <div class="card-body-glass">
+            <div class="child-quick-card">
+              <div class="avatar-child">👦</div>
+              <div class="child-info">
+                <h4>Muhammad Rayyan (18 Bln)</h4>
+                <p>BB: 11.2 kg • TB: 83.5 cm</p>
+              </div>
+              <span class="status-pill status-normal">Gizi Baik</span>
+            </div>
+            
+            <div class="zscore-bars">
+              <div class="zscore-item">
+                <div class="zscore-label">
+                  <span>Tinggi / Umur (TB/U)</span>
+                  <strong class="text-emerald">Normal (Bebas Stunting)</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill green" style="width: 82%;"></div></div>
+              </div>
+              <div class="zscore-item">
+                <div class="zscore-label">
+                  <span>Berat / Umur (BB/U)</span>
+                  <strong class="text-emerald">Berat Normal</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill green" style="width: 78%;"></div></div>
+              </div>
+              <div class="zscore-item">
+                <div class="zscore-label">
+                  <span>Berat / Tinggi (BB/TB)</span>
+                  <strong class="text-emerald">Gizi Baik</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill green" style="width: 80%;"></div></div>
+              </div>
+            </div>
+
+            <div class="wa-alert-sent">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#22C55E"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+              <span>Notifikasi WA berhasil terkirim ke Ibu Rayyan</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Role Portal Section -->
+  <section class="section portal-section" id="portal-peran">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Akses Khusus</span>
+        <h2 class="section-title">Dirancang untuk 3 Kebutuhan Pengguna</h2>
+        <p class="section-desc">Sistem terintegrasi yang memudahkan Kader, Orang Tua, dan Puskesmas dalam satu ekosistem.</p>
+      </div>
+
+      <div class="role-grid">
+        <!-- Role 1: Kader -->
+        <div class="role-card active" data-role="kader">
+          <div class="role-icon-box kader-box">👩‍⚕️</div>
+          <div class="role-badge">Tampilan Simpel</div>
+          <h3 class="role-title">Kader Posyandu</h3>
+          <p class="role-desc">Form input pengukuran dengan tombol besar, mudah digunakan di HP, dan tetap berfungsi saat internet tidak stabil.</p>
+          <ul class="role-features">
+            <li>✅ Input cepat Nama, BB, & TB Balita</li>
+            <li>✅ Status gizi muncul instan tanpa hitung manual</li>
+            <li>✅ Tombol sekali klik kirim laporan ke WA</li>
+          </ul>
+        </div>
+
+        <!-- Role 2: Orang Tua -->
+        <div class="role-card" data-role="orangtua">
+          <div class="role-icon-box parent-box">👨‍👩‍👧</div>
+          <div class="role-badge">Tanpa Install Aplikasi</div>
+          <h3 class="role-title">Orang Tua Balita</h3>
+          <p class="role-desc">Menerima rekapan perkembangan anak secara transparan dan mudah dipahami langsung di nomor WhatsApp pribadi.</p>
+          <ul class="role-features">
+            <li>✅ Pesan ramah dan ringkas dari Posyandu</li>
+            <li>✅ Tips nutrisi pencegahan stunting</li>
+            <li>✅ Jadwal penimbangan bulan berikutnya</li>
+          </ul>
+        </div>
+
+        <!-- Role 3: Puskesmas -->
+        <div class="role-card" data-role="admin">
+          <div class="role-icon-box admin-box">🏥</div>
+          <div class="role-badge">Dashboard Monitoring</div>
+          <h3 class="role-title">Puskesmas / Admin</h3>
+          <p class="role-desc">Pemantauan data makro seluruh posyandu binaan untuk intervensi dini gizi buruk & stunting di wilayah kerja.</p>
+          <ul class="role-features">
+            <li>✅ Grafik tren pertumbuhan balita</li>
+            <li>✅ Peta sebaran risiko stunting per posyandu</li>
+            <li>✅ Unduh laporan rekap bulanan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Stunting Calculator & Live WhatsApp Preview -->
+  <section class="section calc-section" id="kalkulator">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Simulasi Interaktif</span>
+        <h2 class="section-title">Kalkulator KMS & Deteksi Stunting</h2>
+        <p class="section-desc">Coba masukkan data balita untuk melihat bagaimana PosyanduSmart menganalisis status gizi dan menyusun pesan WhatsApp secara otomatis.</p>
+      </div>
+
+      <div class="calc-grid">
+        <!-- Input Form -->
+        <div class="calc-form-card">
+          <div class="card-tag">
+            <span>📝 Form Pengukuran Balita</span>
+          </div>
+
+          <form id="stuntingForm" onsubmit="return false;">
+            <div class="form-group">
+              <label for="childName">Nama Lengkap Balita</label>
+              <input type="text" id="childName" class="form-control" value="Aisyah Putri" placeholder="Contoh: Aisyah Putri" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jenis Kelamin</label>
+                <div class="gender-toggle">
+                  <button type="button" class="btn-gender active" data-gender="L">
+                    👦 Laki-laki
+                  </button>
+                  <button type="button" class="btn-gender" data-gender="P">
+                    👧 Perempuan
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="childAge">Usia (Bulan)</label>
+                <div class="input-with-action">
+                  <button type="button" class="btn-step" onclick="stepAge(-1)">-</button>
+                  <input type="number" id="childAge" class="form-control text-center font-bold" value="14" min="0" max="60" required>
+                  <button type="button" class="btn-step" onclick="stepAge(1)">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="childWeight">Berat Badan (kg)</label>
+                <div class="input-unit">
+                  <input type="number" id="childWeight" class="form-control" value="9.4" step="0.1" min="1" max="40" required>
+                  <span class="unit">kg</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="childHeight">Tinggi Badan (cm)</label>
+                <div class="input-unit">
+                  <input type="number" id="childHeight" class="form-control" value="77.5" step="0.1" min="30" max="130" required>
+                  <span class="unit">cm</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="parentPhone">No. WhatsApp Orang Tua</label>
+              <div class="input-unit">
+                <span class="prefix">🇮🇩 +62</span>
+                <input type="tel" id="parentPhone" class="form-control input-phone" value="81234567890" placeholder="81234567890">
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="btnCalculate" class="btn btn-primary btn-block btn-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Hitung & Perbarui Status
+              </button>
+            </div>
+          </form>
+
+          <!-- Result Analysis Cards -->
+          <div class="analysis-box" id="analysisBox">
+            <h4 class="analysis-title">Hasil Analisis Antropometri WHO</h4>
+            
+            <div class="indicators-grid">
+              <!-- TB/U -->
+              <div class="indicator-card" id="cardTBU">
+                <div class="ind-icon">📏</div>
+                <div class="ind-meta">
+                  <span class="ind-name">Tinggi menurut Umur (TB/U)</span>
+                  <div class="ind-badge status-normal" id="badgeTBU">Normal</div>
+                </div>
+                <p class="ind-desc" id="descTBU">Tinggi badan balita sesuai dengan rentang usianya.</p>
+              </div>
+
+              <!-- BB/U -->
+              <div class="indicator-card" id="cardBBU">
+                <div class="ind-icon">⚖️</div>
+                <div class="ind-meta">
+                  <span class="ind-name">Berat menurut Umur (BB/U)</span>
+                  <div class="ind-badge status-normal" id="badgeBBU">Berat Normal</div>
+                </div>
+                <p class="ind-desc" id="descBBU">Berat badan balita berada pada batas wajar.</p>
+              </div>
+
+              <!-- BB/TB -->
+              <div class="indicator-card" id="cardBBTB">
+                <div class="ind-icon">🥗</div>
+                <div class="ind-meta">
+                  <span class="ind-name">Gizi / Proporsi (BB/TB)</span>
+                  <div class="ind-badge status-normal" id="badgeBBTB">Gizi Baik (Normal)</div>
+                </div>
+                <p class="ind-desc" id="descBBTB">Proporsi berat seimbang dengan tinggi badan.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Phone Mockup Live Preview -->
+        <div class="calc-preview-card">
+          <div class="phone-mockup">
+            <div class="phone-camera-notch"></div>
+            
+            <!-- WA Header -->
+            <div class="wa-header">
+              <div class="wa-back-btn">←</div>
+              <div class="wa-avatar">🏥</div>
+              <div class="wa-contact-info">
+                <h4>Posyandu Dahlia 04</h4>
+                <p>Online • Pesan Otomatis</p>
+              </div>
+              <div class="wa-menu">⋮</div>
+            </div>
+
+            <!-- WA Chat Screen -->
+            <div class="wa-chat-body" id="waChatBody">
+              <div class="wa-chat-date">HARI INI</div>
+
+              <div class="wa-bubble incoming">
+                <div class="wa-sender">Posyandu Dahlia 04 (Layanan KMS Digital)</div>
+                <div class="wa-message-text" id="waMessageContent">
+                  Halo Bapak/Ibu dari Ananda <strong>Aisyah Putri</strong>! 👋<br><br>
+                  Berikut laporan hasil penimbangan di Posyandu hari ini:<br>
+                  📅 <strong>Tanggal:</strong> 24 Agustus 2026<br>
+                  🎂 <strong>Usia:</strong> 14 Bulan (Perempuan)<br>
+                  ⚖️ <strong>Berat Badan:</strong> 9.4 kg<br>
+                  📏 <strong>Tinggi Badan:</strong> 77.5 cm<br><br>
+                  📊 <strong>STATUS PERTUMBUHAN (WHO):</strong><br>
+                  • Tinggi / Umur: <span class="wa-tag-green">✅ Normal (Bebas Stunting)</span><br>
+                  • Status Gizi: <span class="wa-tag-green">✅ Gizi Baik</span><br><br>
+                  💡 <strong>Catatan Kader:</strong> Pertumbuhan ananda sangat bagus! Terus lanjutkan pemberian makanan bergizi seimbang & MPASI kaya protein hewani (telur, ikan, daging).<br><br>
+                  🗓️ <em>Jadwal Posyandu Berikutnya: 24 September 2026</em>
+                </div>
+                <div class="wa-time">
+                  <span id="waTime">13:45</span>
+                  <span class="wa-ticks">✓✓</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- WA Bottom Action -->
+            <div class="phone-footer-action">
+              <button id="btnSendDemoWA" class="btn btn-wa-send">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+                </svg>
+                Simulasi Kirim Notifikasi WA
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Growth Chart & KMS Curve -->
+  <section class="section chart-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Visualisasi Grafik</span>
+        <h2 class="section-title">Kurva Pertumbuhan Balita (KMS Standar WHO)</h2>
+        <p class="section-desc">Grafik interaktif memantau apakah kurva tumbuh kembang ananda berada di zona hijau aman atau mendekati garis batas merah.</p>
+      </div>
+
+      <div class="chart-wrapper-card">
+        <div class="chart-controls">
+          <div class="chart-legend">
+            <span class="legend-item"><span class="color-dot dot-upper"></span> +2 SD (Batas Atas)</span>
+            <span class="legend-item"><span class="color-dot dot-median"></span> Median WHO (Ideal)</span>
+            <span class="legend-item"><span class="color-dot dot-lower"></span> -2 SD (Garis Waspada)</span>
+            <span class="legend-item"><span class="color-dot dot-stunted"></span> -3 SD (Batas Stunting)</span>
+            <span class="legend-item"><span class="color-dot dot-child"></span> Posisi Balita Saat Ini</span>
+          </div>
+        </div>
+        
+        <div class="canvas-container">
+          <canvas id="growthChart" width="800" height="380"></canvas>
+        </div>
+        
+        <div class="chart-caption" id="chartCaption">
+          📌 Posisi ananda <strong id="chartChildName">Aisyah Putri</strong> (14 bln, 77.5 cm) berada di <strong>Zona Normal (+0.4 SD)</strong>, berkembang sesuai kurva ideal.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Demo Data Table (Kader View) -->
+  <section class="section table-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-subtitle">Data Rekap Posyandu</span>
+          <h2 class="section-title">Daftar Penimbangan Terkini</h2>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="alert('Fitur ekspor Excel/PDF akan aktif pada modul backend!')">
+          📥 Unduh Rekap (Excel)
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nama Balita</th>
+              <th>JK / Usia</th>
+              <th>BB (kg)</th>
+              <th>TB (cm)</th>
+              <th>Status TB/U</th>
+              <th>Status Gizi</th>
+              <th>Notifikasi WA</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="demoTableBody">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Educational Info: Stunting Prevention Guide -->
+  <section class="section edu-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Edukasi & Intervensi</span>
+        <h2 class="section-title">Kriteria Deteksi Dini Stunting</h2>
+        <p class="section-desc">Pedoman praktis untuk kader dalam menentukan langkah rujukan ke Puskesmas.</p>
+      </div>
+
+      <div class="edu-grid">
+        <div class="edu-card card-green">
+          <div class="edu-badge">Zona Hijau (Normal)</div>
+          <h3>Z-Score: -2 SD s/d +3 SD</h3>
+          <p>Tinggi badan balita bertumbuh sesuai standar usianya. Tetap lakukan stimulasi dan ASI/MPASI bergizi seimbang.</p>
+        </div>
+        <div class="edu-card card-yellow">
+          <div class="edu-badge">Zona Kuning (Waspada)</div>
+          <h3>Z-Score: -3 SD s/d < -2 SD</h3>
+          <p>Kategori <em>Pendek (Stunted)</em>. Kader memberikan konseling gizi intensif kepada orang tua dan pemantauan berat badan 2 minggu sekali.</p>
+        </div>
+        <div class="edu-card card-red">
+          <div class="edu-badge">Zona Merah (Rujukan Segera)</div>
+          <h3>Z-Score: < -3 SD</h3>
+          <p>Kategori <em>Sangat Pendek (Severely Stunted)</em>. Segera buat surat rujukan ke Dokter Spesialis Anak / Ahli Gizi di Puskesmas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="brand-group">
+          <div class="brand-logo sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+          </div>
+          <h4>Posyandu<span>Smart</span></h4>
+        </div>
+        <p>Platform Digitalisasi KMS & Deteksi Dini Stunting untuk Posyandu Indonesia.</p>
+      </div>
+
+      <div class="footer-info">
+        <p><strong>Proyek PKL Tahap 1</strong> • Frontend + Backend + PWA Architecture</p>
+        <p class="copyright">© 2026 PosyanduSmart. Dibuat untuk peningkatan kualitas kesehatan balita Indonesia.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Popup -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JavaScript logic -->
+  <script src="app.js?v=2"></script>
+</body>
+</html>
