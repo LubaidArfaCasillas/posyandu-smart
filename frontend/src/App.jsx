@@ -24,7 +24,7 @@ export default function App() {
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28">
         {activeTab === 'dashboard' && (
           <Dashboard
             onNavigateToTimbang={() => setActiveTab('timbang')}
@@ -56,7 +56,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="hidden md:block border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-200 bg-white py-6 mb-20 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4">
           <p className="font-semibold text-slate-700">PosyanduSmart © 2026 • Platform Digitalisasi KMS & Deteksi Dini Stunting</p>
           <p className="mt-1 text-[11px] text-slate-400">Dibangun dengan React, Tailwind CSS, Node.js Express, MySQL, dan Fonnte WhatsApp Gateway</p>
