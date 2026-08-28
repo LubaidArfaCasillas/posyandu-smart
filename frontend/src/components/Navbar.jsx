@@ -19,9 +19,11 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
             className="flex items-center gap-2.5 cursor-pointer select-none"
             onClick={() => setActiveTab('dashboard')}
           >
-            <div className="w-9 h-9 rounded-xl bg-[#0077b6]/10 flex items-center justify-center text-[#0077b6]">
-              <TrendingUp className="w-5 h-5 stroke-[2.5]" />
-            </div>
+            <img
+              src="/posyandusmart.svg"
+              alt="PosyanduSmart Logo"
+              className="h-9 w-auto object-contain"
+            />
             <div>
               <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#0077b6]">
                 PosyanduSmart
