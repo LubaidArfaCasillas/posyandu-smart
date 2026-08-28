@@ -22,13 +22,11 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
             <img
               src="/posyandusmart.svg"
               alt="PosyanduSmart Logo"
-              className="h-14 sm:h-16 w-auto object-contain transition-transform hover:scale-105"
+              className="h-9 sm:h-10 w-auto object-contain transition-transform hover:scale-105"
             />
-            <div>
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#0077b6]">
-                PosyanduSmart
-              </span>
-            </div>
+            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#0077b6]">
+              PosyanduSmart
+            </span>
           </div>
 
           {/* Desktop Navigation Links */}
