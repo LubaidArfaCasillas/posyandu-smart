@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, User, Lock, Eye, EyeOff, LogIn, AlertCircle, ShieldCheck } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, AlertCircle, ShieldCheck } from 'lucide-react';
 import api from '../api/client';
 
 export default function Login({ onLoginSuccess }) {
@@ -38,9 +38,11 @@ export default function Login({ onLoginSuccess }) {
       <div className="max-w-md w-full space-y-6">
         {/* Header & Logo */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#0077b6]/10 text-[#0077b6] shadow-xs mb-1">
-            <TrendingUp className="w-8 h-8 stroke-[2.5]" />
-          </div>
+          <img
+            src="/posyandusmart.svg"
+            alt="PosyanduSmart Logo"
+            className="h-20 sm:h-24 w-auto mx-auto object-contain mb-2 hover:scale-105 transition-transform"
+          />
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0077b6] tracking-tight">
             PosyanduSmart
           </h1>
