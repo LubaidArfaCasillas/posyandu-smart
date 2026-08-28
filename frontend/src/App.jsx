@@ -19,12 +19,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Navbar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28">
+      {/* Main Responsive Content View */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 md:pb-12">
         {activeTab === 'dashboard' && (
           <Dashboard
             onNavigateToTimbang={() => setActiveTab('timbang')}
@@ -54,14 +54,6 @@ export default function App() {
           />
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mb-20 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4">
-          <p className="font-semibold text-slate-700">PosyanduSmart © 2026 • Platform Digitalisasi KMS & Deteksi Dini Stunting</p>
-          <p className="mt-1 text-[11px] text-slate-400">Dibangun dengan React, Tailwind CSS, Node.js Express, MySQL, dan Fonnte WhatsApp Gateway</p>
-        </div>
-      </footer>
     </div>
   );
 }

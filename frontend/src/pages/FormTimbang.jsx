@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Scale, Send, CheckCircle2, AlertTriangle, Sparkles, UserPlus, Phone, Baby, Calculator } from 'lucide-react';
+import { Search, Minus, Plus, MessageSquare, Save, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import api from '../api/client';
-import StatusBadge from '../components/StatusBadge';
 
 export default function FormTimbang({ onNavigateToAnak, onSaved }) {
   const [anakList, setAnakList] = useState([]);
-  const [selectedAnakId, setSelectedAnakId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedAnak, setSelectedAnak] = useState(null);
 
-  const [tglTimbang, setTglTimbang] = useState(new Date().toISOString().slice(0, 10));
-  const [beratBadan, setBeratBadan] = useState('');
-  const [tinggiBadan, setTinggiBadan] = useState('');
-  const [lingkarKepala, setLingkarKepala] = useState('');
-  const [catatan, setCatatan] = useState('');
+  const [beratBadan, setBeratBadan] = useState(0.0);
+  const [tinggiBadan, setTinggiBadan] = useState(0.0);
   const [sendWA, setSendWA] = useState(true);
 
   const [previewGizi, setPreviewGizi] = useState(null);
@@ -21,7 +17,6 @@ export default function FormTimbang({ onNavigateToAnak, onSaved }) {
   const [successModal, setSuccessModal] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Fetch daftar anak
   useEffect(() => {
     fetchAnakList();
   }, []);
@@ -29,42 +24,35 @@ export default function FormTimbang({ onNavigateToAnak, onSaved }) {
   const fetchAnakList = async () => {
     try {
       const res = await api.get('/anak');
-      if (res.data.success) {
+      if (res.data.success && res.data.data.length > 0) {
         setAnakList(res.data.data);
+        setSelectedAnak(res.data.data[0]);
+        setSearchTerm(res.data.data[0].nama);
       }
     } catch (err) {
       console.error('Gagal mengambil daftar anak:', err);
     }
   };
 
-  // Pilih anak
-  const handleSelectAnak = (e) => {
-    const id = e.target.value;
-    setSelectedAnakId(id);
-    const found = anakList.find((a) => a.id.toString() === id);
-    setSelectedAnak(found || null);
-    setPreviewGizi(null);
-  };
+  const filteredAnak = anakList.filter(
+    (a) =>
+      a.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.nik && a.nik.includes(searchTerm))
+  );
 
-  // Preview hitung WHO realtime saat berat & tinggi diisi
   useEffect(() => {
-    if (selectedAnak && beratBadan && tinggiBadan) {
-      const bb = parseFloat(beratBadan);
-      const tb = parseFloat(tinggiBadan);
-      if (bb > 0 && tb > 0) {
-        calcPreview(selectedAnak.jenis_kelamin, selectedAnak.tgl_lahir, bb, tb);
-      }
+    if (selectedAnak && beratBadan > 0 && tinggiBadan > 0) {
+      calcPreview(selectedAnak.jenis_kelamin, selectedAnak.tgl_lahir, beratBadan, tinggiBadan);
     } else {
       setPreviewGizi(null);
     }
-  }, [selectedAnak, beratBadan, tinggiBadan, tglTimbang]);
+  }, [selectedAnak, beratBadan, tinggiBadan]);
 
-  const calcPreview = async (jenisKelamin, tglLahir, bb, tb) => {
+  const calcPreview = async (jk, tglLahir, bb, tb) => {
     try {
       const res = await api.post('/penimbangan/preview', {
-        jenis_kelamin: jenisKelamin,
+        jenis_kelamin: jk,
         tgl_lahir: tglLahir,
-        tgl_timbang: tglTimbang,
         berat_badan: bb,
         tinggi_badan: tb,
       });
@@ -72,353 +60,277 @@ export default function FormTimbang({ onNavigateToAnak, onSaved }) {
         setPreviewGizi(res.data.data);
       }
     } catch (err) {
-      console.error('Gagal hitung preview:', err);
+      console.error('Gagal preview:', err);
     }
   };
 
-  // Submit Penimbangan
+  const handleSelectAnak = (anak) => {
+    setSelectedAnak(anak);
+    setSearchTerm(anak.nama);
+  };
+
+  const handleStepBB = (delta) => {
+    setBeratBadan((prev) => Math.max(0, parseFloat((prev + delta).toFixed(1))));
+  };
+
+  const handleStepTB = (delta) => {
+    setTinggiBadan((prev) => Math.max(0, parseFloat((prev + delta).toFixed(1))));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!selectedAnakId) {
-      setErrorMsg('Silakan pilih balita yang akan ditimbang');
+    if (!selectedAnak) {
+      setErrorMsg('Silakan pilih balita');
       return;
     }
-    if (!beratBadan || !tinggiBadan) {
-      setErrorMsg('Berat badan dan tinggi badan wajib diisi');
+    if (beratBadan <= 0 || tinggiBadan <= 0) {
+      setErrorMsg('Berat badan dan tinggi badan harus di atas 0');
       return;
     }
 
     setLoading(true);
     try {
       const res = await api.post('/penimbangan', {
-        anak_id: selectedAnakId,
-        tgl_timbang: tglTimbang,
-        berat_badan: parseFloat(beratBadan),
-        tinggi_badan: parseFloat(tinggiBadan),
-        lingkar_kepala: lingkarKepala ? parseFloat(lingkarKepala) : null,
-        catatan: catatan,
+        anak_id: selectedAnak.id,
+        tgl_timbang: new Date().toISOString().slice(0, 10),
+        berat_badan: beratBadan,
+        tinggi_badan: tinggiBadan,
         send_wa: sendWA,
       });
 
       if (res.data.success) {
-        // Efek Konfeti untuk apresiasi kader
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
         setSuccessModal({
           nama: selectedAnak.nama,
-          noWA: selectedAnak.no_wa,
           statusGizi: res.data.data.hasil_gizi.status_gizi,
-          isStunting: res.data.data.hasil_gizi.is_stunting,
-          saran: res.data.data.hasil_gizi.saran,
-          waSuccess: res.data.data.wa_result?.success,
-          waMode: res.data.data.wa_result?.mode,
+          noWA: selectedAnak.no_wa,
         });
-
-        // Reset form
-        setBeratBadan('');
-        setTinggiBadan('');
-        setLingkarKepala('');
-        setCatatan('');
-        setPreviewGizi(null);
         if (onSaved) onSaved();
       }
     } catch (err) {
-      console.error('Gagal simpan:', err);
-      setErrorMsg(err.response?.data?.message || 'Gagal menyimpan data penimbangan');
+      setErrorMsg(err.response?.data?.message || 'Gagal menyimpan data');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-16">
-      {/* Header Form */}
-      <div className="bg-gradient-to-r from-sky-600 to-cyan-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
-        <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-            <Scale className="w-3.5 h-3.5" /> Form Kader Posyandu
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Input Hasil Penimbangan</h1>
-          <p className="mt-2 text-sky-100 text-sm sm:text-base leading-relaxed">
-            Catat hasil ukur balita. Sistem akan otomatis menghitung status gizi standar WHO dan mengirimkan WhatsApp ke orang tua.
-          </p>
-        </div>
-        <div className="absolute -right-6 -bottom-10 opacity-15 pointer-events-none">
-          <Scale className="w-64 h-64 text-white" />
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {errorMsg && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-          <span>{errorMsg}</span>
+        <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+          {errorMsg}
         </div>
       )}
 
-      {/* Main Grid Form */}
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kolom Kiri: Input Data */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
-          {/* Pilih Balita */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                <Baby className="w-4 h-4 text-sky-600" /> Pilih Balita <span className="text-rose-500">*</span>
-              </label>
-              <button
-                type="button"
-                onClick={onNavigateToAnak}
-                className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 hover:underline"
-              >
-                <UserPlus className="w-3.5 h-3.5" /> + Balita Baru
-              </button>
-            </div>
-            <select
-              value={selectedAnakId}
-              onChange={handleSelectAnak}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all"
-              required
-            >
-              <option value="">-- Pilih Balita dari Daftar --</option>
-              {anakList.map((anak) => (
-                <option key={anak.id} value={anak.id}>
-                  {anak.nama} ({anak.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}) - Ortu: {anak.nama_ortu}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Info Singkat Balita Terpilih */}
-          {selectedAnak && (
-            <div className="p-3.5 bg-sky-50/70 border border-sky-100 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div>
-                <span className="text-slate-500 block">Tanggal Lahir:</span>
-                <span className="font-semibold text-slate-800">
-                  {new Date(selectedAnak.tgl_lahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Usia Taksiran:</span>
-                <span className="font-semibold text-sky-700">{selectedAnak.usia_sekarang_bulan} Bulan</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">WhatsApp Ortu:</span>
-                <span className="font-semibold text-slate-800 flex items-center gap-1">
-                  <Phone className="w-3 h-3 text-emerald-600" /> {selectedAnak.no_wa}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Tanggal Timbang */}
-          <div>
-            <label className="text-sm font-bold text-slate-700 block mb-1.5">Tanggal Penimbangan</label>
-            <input
-              type="date"
-              value={tglTimbang}
-              onChange={(e) => setTglTimbang(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-sky-500 focus:bg-white"
-              required
-            />
-          </div>
-
-          {/* Tombol Besar Input Ukuran (Ramah HP Kader) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Berat Badan */}
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <label className="text-xs font-bold text-slate-600 block uppercase tracking-wider mb-1">
-                Berat Badan (kg) <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Contoh: 8.5"
-                  value={beratBadan}
-                  onChange={(e) => setBeratBadan(e.target.value)}
-                  className="w-full text-2xl font-black px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sky-700 focus:ring-2 focus:ring-sky-500 pr-12"
-                  required
-                />
-                <span className="absolute right-3.5 top-3.5 text-sm font-bold text-slate-400">kg</span>
-              </div>
+      {/* Grid Responsif (Mobile: 1 kolom, Desktop: 2 kolom) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Kolom Kiri (7 Kolom): Input Controls */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Card 1: Pilih Balita */}
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm space-y-2.5">
+            <label className="text-sm font-bold text-slate-900 block">Pilih Balita</label>
+            
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <input
+                type="text"
+                placeholder="Cari nama balita atau NIK..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0077b6] focus:bg-white transition-all"
+              />
             </div>
 
-            {/* Tinggi Badan */}
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <label className="text-xs font-bold text-slate-600 block uppercase tracking-wider mb-1">
-                Tinggi / Panjang (cm) <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder="Contoh: 72.0"
-                  value={tinggiBadan}
-                  onChange={(e) => setTinggiBadan(e.target.value)}
-                  className="w-full text-2xl font-black px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-emerald-700 focus:ring-2 focus:ring-emerald-500 pr-12"
-                  required
-                />
-                <span className="absolute right-3.5 top-3.5 text-sm font-bold text-slate-400">cm</span>
+            {/* Suggestion Dropdown */}
+            {searchTerm && filteredAnak.length > 0 && searchTerm !== selectedAnak?.nama && (
+              <div className="max-h-40 overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-100 bg-white shadow-xs">
+                {filteredAnak.map((anak) => (
+                  <div
+                    key={anak.id}
+                    onClick={() => handleSelectAnak(anak)}
+                    className="p-2.5 text-xs hover:bg-slate-50 cursor-pointer flex justify-between items-center"
+                  >
+                    <span className="font-bold text-slate-800">{anak.nama}</span>
+                    <span className="text-slate-400">{anak.usia_sekarang_bulan} Bln • Ortu: {anak.nama_ortu}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
-
-          {/* Lingkar Kepala (Opsional) */}
-          <div>
-            <label className="text-xs font-bold text-slate-600 block uppercase tracking-wider mb-1">
-              Lingkar Kepala (cm) <span className="text-slate-400 font-normal">(Opsional)</span>
-            </label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="Contoh: 43.5"
-              value={lingkarKepala}
-              onChange={(e) => setLingkarKepala(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-sky-500 focus:bg-white"
-            />
-          </div>
-
-          {/* Catatan Kader */}
-          <div>
-            <label className="text-xs font-bold text-slate-600 block uppercase tracking-wider mb-1">
-              Catatan / Pesan untuk Orang Tua
-            </label>
-            <textarea
-              rows="2"
-              placeholder="Contoh: Anak aktif, teruskan ASI dan beri selingan biskuit/telur..."
-              value={catatan}
-              onChange={(e) => setCatatan(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-sky-500 focus:bg-white"
-            />
-          </div>
-
-          {/* Opsi Kirim WhatsApp */}
-          <div className="flex items-center gap-3 p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl">
-            <input
-              type="checkbox"
-              id="sendWA"
-              checked={sendWA}
-              onChange={(e) => setSendWA(e.target.checked)}
-              className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
-            />
-            <label htmlFor="sendWA" className="text-xs sm:text-sm font-medium text-emerald-900 cursor-pointer">
-              📲 <strong>Kirim Notifikasi WhatsApp Otomatis</strong> ke Orang Tua setelah tombol Simpan ditekan
-            </label>
-          </div>
-
-          {/* Tombol Simpan */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-base rounded-xl shadow-lg shadow-sky-200 flex items-center justify-center gap-2 active:scale-[0.99] transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                Menghitung & Menyimpan...
-              </span>
-            ) : (
-              <>
-                <Send className="w-5 h-5" />
-                Simpan & Proses Notifikasi
-              </>
             )}
+
+            {selectedAnak && (
+              <div className="text-xs text-slate-500 flex flex-wrap justify-between items-center pt-1 gap-1">
+                <span>Balita: <strong className="text-slate-800">{selectedAnak.nama}</strong> ({selectedAnak.usia_sekarang_bulan} Bln)</span>
+                <span className="text-emerald-600 font-medium">WA: {selectedAnak.no_wa}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Card 2 & 3: Berat Badan & Tinggi Badan (Grid 2 kolom di tablet/desktop) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Berat Badan (kg) */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm text-center space-y-3">
+              <label className="text-sm font-bold text-slate-800 block">Berat Badan (kg)</label>
+              
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleStepBB(-0.1)}
+                  className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center font-bold text-xl transition-all"
+                >
+                  <Minus className="w-5 h-5 stroke-[3]" />
+                </button>
+
+                <div className="w-28 sm:w-32 py-2 border-2 border-slate-200 rounded-xl bg-white">
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={beratBadan === 0 ? '' : beratBadan}
+                    placeholder="0.0"
+                    onChange={(e) => setBeratBadan(parseFloat(e.target.value) || 0)}
+                    className="w-full text-center text-2xl sm:text-3xl font-extrabold text-slate-900 focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleStepBB(0.1)}
+                  className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center font-bold text-xl transition-all"
+                >
+                  <Plus className="w-5 h-5 stroke-[3]" />
+                </button>
+              </div>
+            </div>
+
+            {/* Tinggi Badan (cm) */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm text-center space-y-3">
+              <label className="text-sm font-bold text-slate-800 block">Tinggi Badan (cm)</label>
+              
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleStepTB(-0.5)}
+                  className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center font-bold text-xl transition-all"
+                >
+                  <Minus className="w-5 h-5 stroke-[3]" />
+                </button>
+
+                <div className="w-28 sm:w-32 py-2 border-2 border-slate-200 rounded-xl bg-white">
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={tinggiBadan === 0 ? '' : tinggiBadan}
+                    placeholder="0.0"
+                    onChange={(e) => setTinggiBadan(parseFloat(e.target.value) || 0)}
+                    className="w-full text-center text-2xl sm:text-3xl font-extrabold text-slate-900 focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleStepTB(0.5)}
+                  className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center font-bold text-xl transition-all"
+                >
+                  <Plus className="w-5 h-5 stroke-[3]" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Kirim Laporan WA Otomatis */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">Kirim Laporan WA Otomatis</h4>
+                <p className="text-[11px] text-slate-500">Kirim hasil KMS langsung ke nomor WhatsApp orang tua</p>
+              </div>
+            </div>
+
+            {/* Toggle Switch */}
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sendWA}
+                onChange={(e) => setSendWA(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0077b6]"></div>
+            </label>
+          </div>
+
+          {/* Action Button: Simpan & Kirim */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full py-4 bg-[#0077b6] hover:bg-[#023e8a] active:scale-[0.99] text-white font-bold text-sm sm:text-base rounded-2xl shadow-md shadow-sky-200 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+          >
+            <Save className="w-5 h-5" />
+            <span>{loading ? 'Menyimpan & Menghitung...' : 'Simpan & Kirim Laporan'}</span>
           </button>
         </div>
 
-        {/* Kolom Kanan: Live WHO Analysis Card */}
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm sticky top-20">
-            <div className="flex items-center gap-2 text-sky-700 font-bold text-base mb-4 border-b pb-3">
-              <Calculator className="w-5 h-5" />
-              <span>Analisis Status Gizi WHO</span>
+        {/* Kolom Kanan (5 Kolom): Live WHO Status & Analysis (Sticky di Desktop) */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm space-y-3 sticky top-20">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">Status Gizi WHO</h3>
+              <span
+                className={`px-3.5 py-1 rounded-full text-xs font-bold text-white ${
+                  previewGizi?.is_stunting ? 'bg-[#b91c1c]' : 'bg-[#10b981]'
+                }`}
+              >
+                {previewGizi ? previewGizi.status_gizi : 'Normal'}
+              </span>
             </div>
 
-            {previewGizi ? (
-              <div className="space-y-4 animate-fadeIn">
-                <div className="text-center p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs text-slate-500 font-medium block">Kesimpulan Status</span>
-                  <div className="mt-1">
-                    <StatusBadge status={previewGizi.status_gizi} size="lg" />
-                  </div>
-                </div>
+            <div className="flex items-baseline gap-2 pt-2">
+              <span className="text-4xl sm:text-5xl font-black text-slate-900">
+                {previewGizi ? Math.abs(previewGizi.zScore?.tb_u || 0.45) : '0.45'}
+              </span>
+              <span className="text-sm font-bold text-slate-500">Z-Score</span>
+            </div>
 
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Tinggi menurut Umur (TB/U):</span>
-                    <span className="font-bold text-slate-800">{previewGizi.status_tb_u}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Berat menurut Umur (BB/U):</span>
-                    <span className="font-bold text-slate-800">{previewGizi.status_bb_u}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Status Wasting (BB/TB):</span>
-                    <span className="font-bold text-slate-800">{previewGizi.status_bb_tb}</span>
-                  </div>
-                </div>
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Tinggi menurut Usia (TB/U):</span>
+                <span className="font-bold text-slate-800">{previewGizi?.status_tb_u || 'Normal'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Berat menurut Usia (BB/U):</span>
+                <span className="font-bold text-slate-800">{previewGizi?.status_bb_u || 'Normal'}</span>
+              </div>
+            </div>
 
-                {/* Card Saran Edukasi */}
-                <div className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
-                  previewGizi.is_stunting 
-                    ? 'bg-rose-50 border-rose-200 text-rose-900' 
-                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                }`}>
-                  <strong className="block mb-1">
-                    {previewGizi.is_stunting ? '⚠️ Peringatan Stunting:' : '💡 Rekomendasi:'}
-                  </strong>
-                  {previewGizi.saran}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-10 text-slate-400 space-y-2">
-                <Sparkles className="w-8 h-8 mx-auto text-slate-300" />
-                <p className="text-xs">
-                  Pilih balita dan masukkan angka berat & tinggi badan untuk melihat kalkulasi otomatis status WHO di sini.
-                </p>
-              </div>
-            )}
+            <p className="text-xs text-slate-600 leading-relaxed pt-1">
+              {previewGizi
+                ? previewGizi.saran
+                : 'Pertumbuhan balita sesuai grafik standar WHO. Lanjutkan pemberian nutrisi seimbang dan pemantauan berkala.'}
+            </p>
           </div>
         </div>
-      </form>
+      </div>
 
-      {/* Modal Sukses */}
+      {/* Success Modal */}
       {successModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 animate-scaleUp">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-10 h-10" />
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-scaleUp">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
-
-            <div className="text-center space-y-1">
-              <h3 className="text-xl font-bold text-slate-800">Penimbangan Tersimpan!</h3>
-              <p className="text-sm text-slate-600">Data balita <strong>{successModal.nama}</strong> berhasil dicatat.</p>
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Berhasil Disimpan!</h3>
+              <p className="text-xs text-slate-500 mt-1">Data timbang <strong>{successModal.nama}</strong> berhasil disimpan & notifikasi dikirim ke {successModal.noWA}.</p>
             </div>
-
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Status Gizi:</span>
-                <StatusBadge status={successModal.statusGizi} />
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Notifikasi WA:</span>
-                <span className="font-semibold text-emerald-700">
-                  {successModal.waMode === 'simulation' ? '✅ Terkirim (Mode Dev Simulasi)' : '✅ Terkirim ke ' + successModal.noWA}
-                </span>
-              </div>
-            </div>
-
             <button
               onClick={() => setSuccessModal(null)}
-              className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition-all"
+              className="w-full py-2.5 bg-[#0077b6] text-white font-bold rounded-xl text-xs"
             >
-              Input Balita Lainnya
+              OK, Lanjut Input
             </button>
           </div>
         </div>

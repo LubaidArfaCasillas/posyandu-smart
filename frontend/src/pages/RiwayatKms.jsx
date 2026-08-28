@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Baby, Calendar, Scale, Send, CheckCircle2, Phone, Sparkles, Printer } from 'lucide-react';
+import { Trophy, Check, Utensils, Syringe, GraduationCap, MessageSquare, SlidersHorizontal, User } from 'lucide-react';
 import api from '../api/client';
-import StatusBadge from '../components/StatusBadge';
 
 export default function RiwayatKms({ initialAnakId, onNavigateToTimbang }) {
   const [anakList, setAnakList] = useState([]);
   const [selectedAnakId, setSelectedAnakId] = useState(initialAnakId || '');
   const [anakDetail, setAnakDetail] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [resendingId, setResendingId] = useState(null);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     fetchAnakList();
@@ -23,14 +22,14 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang }) {
   const fetchAnakList = async () => {
     try {
       const res = await api.get('/anak');
-      if (res.data.success) {
+      if (res.data.success && res.data.data.length > 0) {
         setAnakList(res.data.data);
-        if (!selectedAnakId && res.data.data.length > 0) {
+        if (!selectedAnakId) {
           setSelectedAnakId(res.data.data[0].id.toString());
         }
       }
     } catch (err) {
-      console.error('Gagal mengambil daftar anak:', err);
+      console.error('Gagal ambil daftar anak:', err);
     }
   };
 
@@ -42,170 +41,204 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang }) {
         setAnakDetail(res.data.data);
       }
     } catch (err) {
-      console.error('Gagal mengambil detail anak:', err);
+      console.error('Gagal ambil detail anak:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendWA = async (penimbanganId) => {
+  const handleResendWA = async () => {
+    if (!anakDetail?.riwayat || anakDetail.riwayat.length === 0) {
+      alert('Belum ada riwayat timbang untuk dikirim.');
+      return;
+    }
+
+    const lastRecord = anakDetail.riwayat[anakDetail.riwayat.length - 1];
+    setResending(true);
     try {
-      setResendingId(penimbanganId);
-      const res = await api.post(`/penimbangan/${penimbanganId}/resend-wa`);
+      const res = await api.post(`/penimbangan/${lastRecord.id}/resend-wa`);
       if (res.data.success) {
-        alert('✅ Pesan WhatsApp berhasil dikirim ulang ke orang tua!');
-        fetchDetailAnak(selectedAnakId);
+        alert(`✅ Laporan WhatsApp berhasil dikirim ke ${anakDetail.no_wa}!`);
       }
     } catch (err) {
-      alert('Gagal mengirim ulang WhatsApp: ' + (err.response?.data?.message || err.message));
+      alert('Gagal mengirim WhatsApp: ' + (err.response?.data?.message || err.message));
     } finally {
-      setResendingId(null);
+      setResending(false);
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16">
-      {/* Header & Selector */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Activity className="w-6 h-6 text-sky-600" /> Buku KMS & Riwayat Pertumbuhan
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Rekam jejak kenaikan berat dan tinggi badan balita setiap bulan.
-          </p>
-        </div>
-
-        {/* Dropdown Selector */}
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedAnakId}
-            onChange={(e) => setSelectedAnakId(e.target.value)}
-            className="px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500"
-          >
-            {anakList.map((anak) => (
-              <option key={anak.id} value={anak.id}>
-                {anak.nama} ({anak.jenis_kelamin === 'L' ? 'L' : 'P'})
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handlePrint}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl"
-            title="Cetak Laporan KMS"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
-        </div>
+    <div className="space-y-5">
+      {/* Selector Dropdown Balita */}
+      <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex items-center justify-between gap-3">
+        <span className="text-xs sm:text-sm font-bold text-slate-700 pl-2">Pilih Balita:</span>
+        <select
+          value={selectedAnakId}
+          onChange={(e) => setSelectedAnakId(e.target.value)}
+          className="flex-1 max-w-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0077b6]"
+        >
+          {anakList.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.nama} ({a.usia_sekarang_bulan} Bln)
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-slate-400">
-          <div className="w-8 h-8 border-3 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p className="text-sm">Memuat riwayat KMS balita...</p>
-        </div>
+        <div className="text-center py-12 text-xs text-slate-400">Memuat Buku KMS...</div>
       ) : !anakDetail ? (
-        <div className="bg-white rounded-2xl p-12 text-center text-slate-400">
+        <div className="bg-white rounded-2xl p-8 text-center text-xs text-slate-400">
           Pilih balita untuk melihat riwayat KMS.
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Card Biodata Balita */}
-          <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-sky-600 text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-sky-200">
-                {anakDetail.jenis_kelamin === 'L' ? '👦' : '👧'}
+        /* Grid Responsif (Mobile: 1 kolom, Desktop: 2 kolom) */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Kolom Kiri (5 Kolom di Desktop): Profile & Milestone */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Card Profil Balita */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="flex items-center gap-3.5">
+                {/* Photo Avatar */}
+                <div className="w-14 h-14 rounded-full bg-[#e0f2fe] text-[#0077b6] flex items-center justify-center font-bold text-2xl shadow-xs overflow-hidden flex-shrink-0">
+                  {anakDetail.jenis_kelamin === 'L' ? '👦' : '👧'}
+                </div>
+
+                <div>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                    {anakDetail.nama}
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {anakDetail.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'} • {anakDetail.usia_sekarang_bulan} Bulan
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 bg-[#0077b6] text-white text-[10px] font-bold rounded-md">
+                      Gizi Baik
+                    </span>
+                    <span className="text-xs text-slate-400">Ortu: {anakDetail.nama_ortu}</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-800">{anakDetail.nama}</h2>
-                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-600 font-medium">
-                  <span>NIK: {anakDetail.nik || '-'}</span>
-                  <span>•</span>
-                  <span>Ortu: {anakDetail.nama_ortu}</span>
-                  <span>•</span>
-                  <span>Usia: {anakDetail.usia_sekarang_bulan} Bulan</span>
+
+              <div className="p-2 text-slate-300">
+                <User className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Card Milestone Penting */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
+                <Trophy className="w-4 h-4 text-[#0077b6]" />
+                <span>Milestone Penting</span>
+              </div>
+
+              {/* Stepper Timeline */}
+              <div className="relative pt-2 pb-1">
+                {/* Line Connector */}
+                <div className="absolute top-6 left-6 right-6 h-0.5 bg-slate-200 -z-0">
+                  <div className="bg-[#0077b6] h-full w-2/3"></div>
+                </div>
+
+                <div className="grid grid-cols-4 gap-1 text-center relative z-10">
+                  {/* 1. Lahir */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-[#0077b6] text-white flex items-center justify-center text-xs shadow-xs">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 mt-1.5">Lahir</span>
+                  </div>
+
+                  {/* 2. MPASI */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-[#0077b6] text-white flex items-center justify-center text-xs shadow-xs">
+                      <Utensils className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 mt-1.5">MPASI</span>
+                  </div>
+
+                  {/* 3. Imunisasi */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-[#0077b6] text-white flex items-center justify-center text-xs shadow-xs">
+                      <Syringe className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[10px] font-bold text-[#0077b6] mt-1.5 leading-tight">
+                      Imunisasi<br />Lengkap
+                    </span>
+                  </div>
+
+                  {/* 4. PAUD */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs">
+                      <GraduationCap className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[10px] font-medium text-slate-400 mt-1.5">PAUD</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => onNavigateToTimbang(anakDetail.id)}
-                className="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
-              >
-                <Scale className="w-3.5 h-3.5" /> + Timbang Bulan Ini
-              </button>
-            </div>
+            {/* Action: Kirim Ulang Laporan WhatsApp */}
+            <button
+              type="button"
+              onClick={handleResendWA}
+              disabled={resending}
+              className="w-full py-3.5 px-4 rounded-full border-2 border-slate-200 hover:border-emerald-500 bg-white text-slate-700 hover:text-emerald-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99] disabled:opacity-50"
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <span>{resending ? 'Mengirim WhatsApp...' : 'Kirim Ulang Laporan WhatsApp'}</span>
+            </button>
           </div>
 
-          {/* Tabel Riwayat Penimbangan */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-base font-bold text-slate-800">Catatan Pengukuran Bulanan</h3>
+          {/* Kolom Kanan (7 Kolom di Desktop): Riwayat Bulanan */}
+          <div className="lg:col-span-7 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">Riwayat Bulanan</h3>
+              <SlidersHorizontal className="w-4 h-4 text-slate-400 cursor-pointer" />
+            </div>
 
             {(!anakDetail.riwayat || anakDetail.riwayat.length === 0) ? (
-              <div className="p-8 text-center bg-slate-50 rounded-xl text-slate-400 space-y-2">
-                <Scale className="w-8 h-8 mx-auto text-slate-300" />
-                <p className="text-xs">Balita ini belum memiliki riwayat penimbangan.</p>
+              <div className="bg-white rounded-2xl p-8 text-center border border-slate-100 text-xs text-slate-400">
+                Belum ada riwayat pengukuran bulanan untuk balita ini.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-slate-400 uppercase font-semibold">
-                      <th className="pb-3">Tanggal Timbang</th>
-                      <th className="pb-3">Usia</th>
-                      <th className="pb-3">Berat (kg)</th>
-                      <th className="pb-3">Tinggi (cm)</th>
-                      <th className="pb-3">Status Gizi</th>
-                      <th className="pb-3">Status WA</th>
-                      <th className="pb-3">Catatan / Saran</th>
-                      <th className="pb-3 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                    {anakDetail.riwayat.map((row) => (
-                      <tr key={row.id} className="hover:bg-slate-50">
-                        <td className="py-3 font-semibold text-slate-800">
-                          {new Date(row.tgl_timbang).toLocaleDateString('id-ID')}
-                        </td>
-                        <td className="py-3">{row.usia_bulan} bln</td>
-                        <td className="py-3 font-bold text-sky-700">{row.berat_badan} kg</td>
-                        <td className="py-3 font-bold text-emerald-700">{row.tinggi_badan} cm</td>
-                        <td className="py-3">
-                          <StatusBadge status={row.status_gizi} size="sm" />
-                        </td>
-                        <td className="py-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              row.status_wa === 'sent'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-100 text-slate-600'
-                            }`}
-                          >
-                            {row.status_wa === 'sent' ? '✓ Terkirim' : 'Simulasi/Pending'}
-                          </span>
-                        </td>
-                        <td className="py-3 max-w-xs truncate text-slate-500" title={row.catatan}>
-                          {row.catatan || '-'}
-                        </td>
-                        <td className="py-3 text-right">
-                          <button
-                            onClick={() => handleResendWA(row.id)}
-                            disabled={resendingId === row.id}
-                            className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition-colors"
-                            title="Kirim Ulang Notifikasi WhatsApp"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-3">
+                {anakDetail.riwayat.slice().reverse().map((rec) => (
+                  <div
+                    key={rec.id}
+                    className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between hover:border-slate-200 transition-all"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      {/* Month Box */}
+                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex flex-col items-center justify-center text-slate-800 flex-shrink-0">
+                        <span className="text-[9px] text-slate-500 font-bold uppercase leading-none">Bln</span>
+                        <span className="text-base font-black leading-tight">{rec.usia_bulan}</span>
+                      </div>
+
+                      {/* Measurement Data */}
+                      <div>
+                        <div className="flex items-center gap-4 text-xs sm:text-sm">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block">BB (kg)</span>
+                            <span className="font-extrabold text-slate-800 text-sm sm:text-base">{rec.berat_badan}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 block">TB (cm)</span>
+                            <span className="font-extrabold text-slate-800 text-sm sm:text-base">{rec.tinggi_badan}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-600 font-medium">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span>{rec.status_gizi || 'Normal'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Tag */}
+                    <span className="px-2.5 py-1 bg-[#e0f2fe] text-[#0077b6] text-[10px] sm:text-xs font-extrabold rounded-md uppercase flex-shrink-0">
+                      WHO P50
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
