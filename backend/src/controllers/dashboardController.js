@@ -13,17 +13,17 @@ async function getStats(req, res) {
       [currentMonth]
     );
 
-    // Statistik Status Gizi Terkini
+    // Statistik Status Gizi Terkini (Kompatibel dengan MySQL 8)
     const [statusCounts] = await pool.query(`
       SELECT 
         p.status_gizi,
         COUNT(*) AS total
       FROM (
-        SELECT anak_id, status_gizi, MAX(tgl_timbang) AS max_date
+        SELECT anak_id, MAX(id) AS max_id
         FROM penimbangan
         GROUP BY anak_id
       ) AS latest
-      JOIN penimbangan p ON p.anak_id = latest.anak_id AND p.tgl_timbang = latest.max_date
+      JOIN penimbangan p ON p.id = latest.max_id
       GROUP BY p.status_gizi
     `);
 
