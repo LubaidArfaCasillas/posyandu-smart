@@ -16,15 +16,15 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           {/* Logo & Brand */}
           <div
-            className="flex items-center gap-2.5 cursor-pointer select-none"
+            className="flex items-center gap-3 cursor-pointer select-none"
             onClick={() => setActiveTab('dashboard')}
           >
             <img
               src="/posyandusmart.svg"
               alt="PosyanduSmart Logo"
-              className="h-9 sm:h-10 w-auto object-contain transition-transform hover:scale-105"
+              className="h-12 sm:h-14 w-auto object-contain shrink-0 -translate-y-2 transition-transform hover:scale-105"
             />
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#0077b6]">
+            <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-[#0077b6] leading-none">
               PosyanduSmart
             </span>
           </div>
