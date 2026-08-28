@@ -22,7 +22,7 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
             <img
               src="/posyandusmart.svg"
               alt="PosyanduSmart Logo"
-              className="h-11 sm:h-14 w-auto object-contain transition-transform hover:scale-105"
+              className="h-14 sm:h-16 w-auto object-contain transition-transform hover:scale-105"
             />
             <div>
               <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#0077b6]">

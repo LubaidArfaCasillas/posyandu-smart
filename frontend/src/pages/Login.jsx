@@ -41,7 +41,7 @@ export default function Login({ onLoginSuccess }) {
           <img
             src="/posyandusmart.svg"
             alt="PosyanduSmart Logo"
-            className="h-20 sm:h-24 w-auto mx-auto object-contain mb-2 hover:scale-105 transition-transform"
+            className="h-28 sm:h-32 w-auto mx-auto object-contain mb-3 drop-shadow-md hover:scale-105 transition-transform"
           />
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0077b6] tracking-tight">
             PosyanduSmart
