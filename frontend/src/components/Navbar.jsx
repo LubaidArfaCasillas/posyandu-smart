@@ -1,7 +1,7 @@
 import React from 'react';
-import { LayoutGrid, PlusCircle, Users, History, TrendingUp } from 'lucide-react';
+import { LayoutGrid, PlusCircle, Users, History, TrendingUp, LogOut } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab }) {
+export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
     { id: 'timbang', label: 'Input Timbang', icon: PlusCircle },
@@ -11,7 +11,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
 
   return (
     <>
-      {/* Top Header (Responsif: Desktop menampilkan navigasi pill di tengah, Mobile menampilkan logo & badge) */}
+      {/* Top Header */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           {/* Logo & Brand */}
@@ -52,15 +52,25 @@ export default function Navbar({ activeTab, setActiveTab }) {
             })}
           </nav>
 
-          {/* Badges Right */}
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200/60">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Online
-            </span>
-            <span className="hidden sm:inline-block px-3 py-1 bg-[#0077b6] text-white text-[11px] font-bold rounded-full shadow-xs">
-              KMS Digital
-            </span>
+          {/* User Info & Logout Right */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex flex-col text-right">
+              <span className="text-xs font-bold text-slate-800 leading-tight">
+                {user?.nama_lengkap || 'Kader Posyandu'}
+              </span>
+              <span className="text-[10px] text-slate-400 capitalize">
+                {user?.role === 'admin_puskesmas' ? 'Admin Puskesmas' : user?.nama_posyandu || 'Kader'}
+              </span>
+            </div>
+
+            {/* Tombol Logout */}
+            <button
+              onClick={onLogout}
+              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+              title="Keluar / Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
