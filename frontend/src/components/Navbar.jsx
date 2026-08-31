@@ -65,10 +65,10 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex flex-col text-right">
               <span className="text-xs font-bold text-slate-800 leading-tight">
-                {user?.nama_lengkap || 'Kader Posyandu'}
+                {user?.nama_lengkap || 'Pengguna'}
               </span>
               <span className="text-[10px] text-slate-400 capitalize">
-                {user?.role === 'admin_puskesmas' ? 'Admin Puskesmas' : user?.nama_posyandu || 'Kader'}
+                {isAdmin ? 'Admin Puskesmas' : user?.nama_posyandu || 'Kader Posyandu'}
               </span>
             </div>
 
@@ -100,8 +100,8 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
                 onClick={() => setActiveTab(item.id)}
                 className={`flex flex-col items-center justify-center py-1 transition-all duration-200 ${
                   isActive
-                    ? 'px-4 sm:px-5 py-1.5 rounded-full bg-[#48cae4] text-slate-900 font-bold shadow-xs'
-                    : 'px-2.5 sm:px-3 text-slate-500 hover:text-slate-900 font-medium'
+                    ? 'px-3.5 sm:px-4 py-1.5 rounded-full bg-[#48cae4] text-slate-900 font-bold shadow-xs'
+                    : 'px-2 sm:px-3 text-slate-500 hover:text-slate-900 font-medium'
                 }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'text-slate-900 stroke-[2.5]' : 'stroke-[1.75]'}`} />

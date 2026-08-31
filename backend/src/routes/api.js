@@ -17,9 +17,14 @@ router.get('/health', (req, res) => {
   });
 });
 
-// 2. Auth & Posyandu
+// 2. Auth, Posyandu & User Management
 router.post('/auth/login', authController.login);
 router.get('/posyandu', authController.getPosyanduList);
+router.post('/posyandu', authController.createPosyandu);
+router.get('/users', authController.getAllUsers);
+router.post('/users', authController.createUser);
+router.put('/users/:id', authController.updateUser);
+router.delete('/users/:id', authController.deleteUser);
 
 // 3. Data Balita (Anak)
 router.get('/anak', anakController.getAllAnak);
