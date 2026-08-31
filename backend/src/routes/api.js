@@ -5,6 +5,7 @@ const anakController = require('../controllers/anakController');
 const timbangController = require('../controllers/timbangController');
 const dashboardController = require('../controllers/dashboardController');
 const authController = require('../controllers/authController');
+const kaderController = require('../controllers/kaderController');
 
 // 1. Health Check
 router.get('/health', (req, res) => {
@@ -27,13 +28,19 @@ router.post('/anak', anakController.createAnak);
 router.put('/anak/:id', anakController.updateAnak);
 router.delete('/anak/:id', anakController.deleteAnak);
 
-// 4. Penimbangan & Kalkulasi WHO & WhatsApp
+// 4. Kelola Kader (Admin Puskesmas)
+router.get('/kader', kaderController.getAllKader);
+router.post('/kader', kaderController.createKader);
+router.put('/kader/:id', kaderController.updateKader);
+router.delete('/kader/:id', kaderController.deleteKader);
+
+// 5. Penimbangan & Kalkulasi WHO & WhatsApp
 router.post('/penimbangan/preview', timbangController.previewGizi);
 router.post('/penimbangan', timbangController.createPenimbangan);
 router.get('/penimbangan/riwayat/:anak_id', timbangController.getRiwayatAnak);
 router.post('/penimbangan/:id/resend-wa', timbangController.resendWA);
 
-// 5. Dashboard Puskesmas
+// 6. Dashboard Puskesmas
 router.get('/dashboard/stats', dashboardController.getStats);
 
 module.exports = router;

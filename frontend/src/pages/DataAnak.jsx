@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Search, MessageSquare, Scale, TrendingUp, User, UserPlus, X, Phone, Calendar } from 'lucide-react';
 import api from '../api/client';
 
-export default function DataAnak({ onSelectForTimbang, onViewKms }) {
+export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
   const [anakList, setAnakList] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const isAdmin = user?.role === 'admin_puskesmas';
 
   // Modal Tambah Balita Baru
   const [modalOpen, setModalOpen] = useState(false);
@@ -40,6 +42,7 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
   };
 
   const handleOpenAdd = () => {
+    if (isAdmin) return;
     setFormData({
       nik: '',
       nama: '',
@@ -55,6 +58,7 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (isAdmin) return;
     setErrorMsg('');
     setSubmitting(true);
 
@@ -71,7 +75,7 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
 
   return (
     <div className="space-y-5">
-      {/* Top Search Bar & Add Button */}
+      {/* Top Search Bar & Add Button (Add button khusus Kader) */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
@@ -84,14 +88,16 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-[#0077b6] hover:bg-[#023e8a] text-white rounded-xl shadow-xs transition-all flex items-center gap-2 font-bold text-xs sm:text-sm active:scale-95"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">Tambah Balita</span>
-        </button>
+        {!isAdmin && (
+          <button
+            type="button"
+            onClick={handleOpenAdd}
+            className="px-4 py-2.5 bg-[#0077b6] hover:bg-[#023e8a] text-white rounded-xl shadow-xs transition-all flex items-center gap-2 font-bold text-xs sm:text-sm active:scale-95 shrink-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Tambah Balita</span>
+          </button>
+        )}
       </div>
 
       {/* Grid Balita Cards (Responsif: 1 kolom di HP, 2 kolom di Tablet, 3 kolom di Desktop) */}
@@ -158,7 +164,7 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
                 <div>
                   <hr className="my-3.5 border-slate-100" />
 
-                  {/* 3 Action Buttons */}
+                  {/* Action Buttons (Tombol Timbang disembunyikan untuk Admin) */}
                   <div className="flex items-center gap-2">
                     {/* WhatsApp */}
                     <a
@@ -171,22 +177,25 @@ export default function DataAnak({ onSelectForTimbang, onViewKms }) {
                       <span>WhatsApp</span>
                     </a>
 
-                    {/* Timbang */}
-                    <button
-                      onClick={() => onSelectForTimbang(anak.id)}
-                      className="flex-1 py-2 px-2.5 border border-[#0077b6] hover:bg-sky-50 text-[#0077b6] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <Scale className="w-3.5 h-3.5" />
-                      <span>Timbang</span>
-                    </button>
+                    {/* Tombol Timbang khusus Kader */}
+                    {!isAdmin && (
+                      <button
+                        onClick={() => onSelectForTimbang(anak.id)}
+                        className="flex-1 py-2 px-2.5 border border-[#0077b6] hover:bg-sky-50 text-[#0077b6] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Scale className="w-3.5 h-3.5" />
+                        <span>Timbang</span>
+                      </button>
+                    )}
 
                     {/* Grafik KMS */}
                     <button
                       onClick={() => onViewKms(anak.id)}
-                      className="w-9 h-8 sm:w-10 sm:h-9 bg-[#0077b6] hover:bg-[#023e8a] text-white rounded-xl flex items-center justify-center shadow-xs transition-colors flex-shrink-0"
+                      className={`${isAdmin ? 'flex-1 py-2 px-2.5' : 'w-9 h-8 sm:w-10 sm:h-9'} bg-[#0077b6] hover:bg-[#023e8a] text-white rounded-xl flex items-center justify-center shadow-xs transition-colors shrink-0 gap-1.5 text-xs font-bold`}
                       title="Buku KMS Digital"
                     >
                       <TrendingUp className="w-4 h-4" />
+                      {isAdmin && <span>KMS Balita</span>}
                     </button>
                   </div>
                 </div>

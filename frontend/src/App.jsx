@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
+import AdminLayout from './components/AdminLayout';
+import KaderLayout from './components/KaderLayout';
 import Dashboard from './pages/Dashboard';
 import FormTimbang from './pages/FormTimbang';
 import DataAnak from './pages/DataAnak';
 import RiwayatKms from './pages/RiwayatKms';
+import KelolaKader from './pages/KelolaKader';
 import Login from './pages/Login';
 
 export default function App() {
@@ -45,48 +47,51 @@ export default function App() {
     return <Login onLoginSuccess={(loggedInUser) => setUser(loggedInUser)} />;
   }
 
-  // Jika sudah login, tampilkan aplikasi utama
+  const isAdmin = user?.role === 'admin_puskesmas';
+  const LayoutComponent = isAdmin ? AdminLayout : KaderLayout;
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* Top Navbar dengan info user & logout */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        user={user}
-        onLogout={handleLogout}
-      />
+    <LayoutComponent
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      user={user}
+      onLogout={handleLogout}
+    >
+      {activeTab === 'dashboard' && (
+        <Dashboard
+          user={user}
+          onNavigateToTimbang={() => setActiveTab('timbang')}
+          onNavigateToAnak={() => setActiveTab('anak')}
+          onViewKms={handleViewKms}
+        />
+      )}
 
-      {/* Main Responsive Content View */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 md:pb-12">
-        {activeTab === 'dashboard' && (
-          <Dashboard
-            onNavigateToTimbang={() => setActiveTab('timbang')}
-            onNavigateToAnak={() => setActiveTab('anak')}
-            onViewKms={handleViewKms}
-          />
-        )}
+      {activeTab === 'kader' && <KelolaKader />}
 
-        {activeTab === 'timbang' && (
-          <FormTimbang
-            onNavigateToAnak={() => setActiveTab('anak')}
-            onSaved={() => {}}
-          />
-        )}
+      {activeTab === 'timbang' && (
+        <FormTimbang
+          user={user}
+          onNavigateToAnak={() => setActiveTab('anak')}
+          onSaved={() => {}}
+        />
+      )}
 
-        {activeTab === 'anak' && (
-          <DataAnak
-            onSelectForTimbang={handleSelectForTimbang}
-            onViewKms={handleViewKms}
-          />
-        )}
+      {activeTab === 'anak' && (
+        <DataAnak
+          user={user}
+          onSelectForTimbang={handleSelectForTimbang}
+          onViewKms={handleViewKms}
+        />
+      )}
 
-        {activeTab === 'riwayat' && (
-          <RiwayatKms
-            initialAnakId={selectedAnakForKms}
-            onNavigateToTimbang={handleSelectForTimbang}
-          />
-        )}
-      </main>
-    </div>
+      {activeTab === 'riwayat' && (
+        <RiwayatKms
+          user={user}
+          initialAnakId={selectedAnakForKms}
+          onNavigateToTimbang={handleSelectForTimbang}
+        />
+      )}
+    </LayoutComponent>
   );
 }
+

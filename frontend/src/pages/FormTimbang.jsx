@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Minus, Plus, MessageSquare, Save, CheckCircle2 } from 'lucide-react';
+import { Search, Minus, Plus, MessageSquare, Save, CheckCircle2, ShieldAlert } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import api from '../api/client';
 
-export default function FormTimbang({ onNavigateToAnak, onSaved }) {
+export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
+  const isAdmin = user?.role === 'admin_puskesmas';
   const [anakList, setAnakList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAnak, setSelectedAnak] = useState(null);
@@ -16,6 +17,28 @@ export default function FormTimbang({ onNavigateToAnak, onSaved }) {
   const [loading, setLoading] = useState(false);
   const [successModal, setSuccessModal] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  if (isAdmin) {
+    return (
+      <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm text-center max-w-lg mx-auto my-8 space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center mx-auto shadow-xs">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Akses Terbatas: Input Timbang</h2>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+            Admin Puskesmas berfokus pada pemantauan & manajemen wilayah. Fitur entri penimbangan balita khusus dilaksanakan oleh Kader Posyandu.
+          </p>
+        </div>
+        <button
+          onClick={onNavigateToAnak}
+          className="px-5 py-2.5 bg-[#0077b6] hover:bg-[#023e8a] text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95"
+        >
+          Lihat Data Balita &raquo;
+        </button>
+      </div>
+    );
+  }
 
   useEffect(() => {
     fetchAnakList();

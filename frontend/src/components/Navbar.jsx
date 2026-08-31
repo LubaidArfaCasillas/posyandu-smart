@@ -1,13 +1,22 @@
 import React from 'react';
-import { LayoutGrid, PlusCircle, Users, History, TrendingUp, LogOut } from 'lucide-react';
+import { LayoutGrid, PlusCircle, Users, History, UserCheck, LogOut } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'timbang', label: 'Input Timbang', icon: PlusCircle },
-    { id: 'anak', label: 'Data Balita', icon: Users },
-    { id: 'riwayat', label: 'Riwayat KMS', icon: History },
-  ];
+  const isAdmin = user?.role === 'admin_puskesmas';
+
+  const navItems = isAdmin
+    ? [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+        { id: 'kader', label: 'Kelola Kader', icon: UserCheck },
+        { id: 'anak', label: 'Data Balita', icon: Users },
+        { id: 'riwayat', label: 'Riwayat KMS', icon: History },
+      ]
+    : [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+        { id: 'timbang', label: 'Input Timbang', icon: PlusCircle },
+        { id: 'anak', label: 'Data Balita', icon: Users },
+        { id: 'riwayat', label: 'Riwayat KMS', icon: History },
+      ];
 
   return (
     <>

@@ -126,6 +126,52 @@ export default function Login({ onLoginSuccess }) {
           </form>
         </div>
 
+        {/* Demo Credentials Helper Box */}
+        <div className="bg-sky-50/80 border border-sky-200/80 rounded-2xl p-4 text-xs space-y-2">
+          <div className="flex items-center justify-between font-bold text-sky-900">
+            <span className="flex items-center gap-1.5">🔑 Demo Login Credentials</span>
+            <span className="text-[10px] bg-sky-200/60 text-sky-800 px-2 py-0.5 rounded-full">Klik untuk Cepat Masuk</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setUsername('kader1');
+                setPassword('123456');
+              }}
+              className="p-2 bg-white rounded-xl border border-sky-100 text-left hover:border-sky-300 transition-all shadow-xs group"
+            >
+              <div className="font-bold text-slate-800 group-hover:text-[#0077b6]">📱 Kader 1 (Mobile UI)</div>
+              <div className="text-[10px] text-slate-500 font-mono">kader1 / 123456</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setUsername('kader2');
+                setPassword('123456');
+              }}
+              className="p-2 bg-white rounded-xl border border-sky-100 text-left hover:border-sky-300 transition-all shadow-xs group"
+            >
+              <div className="font-bold text-slate-800 group-hover:text-[#0077b6]">📱 Kader 2 (Mobile UI)</div>
+              <div className="text-[10px] text-slate-500 font-mono">kader2 / 123456</div>
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setUsername('admin');
+              setPassword('admin123');
+            }}
+            className="w-full p-2 bg-white rounded-xl border border-sky-100 text-left hover:border-sky-300 transition-all shadow-xs group flex items-center justify-between"
+          >
+            <div>
+              <div className="font-bold text-slate-800 group-hover:text-[#0077b6]">💻 Admin Puskesmas (Desktop UI)</div>
+              <div className="text-[10px] text-slate-500 font-mono">admin / admin123</div>
+            </div>
+            <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-1 rounded-md">Isi Form &raquo;</span>
+          </button>
+        </div>
+
         {/* Footer Info Resmi */}
         <div className="text-center space-y-1 text-xs text-slate-400">
           <div className="flex items-center justify-center gap-1.5 text-slate-500 font-semibold">

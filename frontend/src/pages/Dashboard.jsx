@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Ruler, AlertTriangle, CheckCircle2, Check, ArrowDown, Scale } from 'lucide-react';
 import api from '../api/client';
 
-export default function Dashboard({ onNavigateToTimbang, onNavigateToAnak, onViewKms }) {
+export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak, onViewKms }) {
   const [stats, setStats] = useState({
     total_anak: 0,
     total_timbang_bulan_ini: 0,
@@ -34,6 +34,8 @@ export default function Dashboard({ onNavigateToTimbang, onNavigateToAnak, onVie
   const totalStunting = stats.stuntingList?.length || 0;
   const totalNormal = Math.max(0, totalBalita - totalStunting);
   const persentaseUkur = totalBalita > 0 ? Math.min(100, Math.round(((stats.total_timbang_bulan_ini || totalBalita) / totalBalita) * 100)) : 85;
+
+  const isAdmin = user?.role === 'admin_puskesmas';
 
   return (
     <div className="space-y-6">

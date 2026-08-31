@@ -83,8 +83,9 @@ INSERT INTO `posyandu` (`id`, `nama_posyandu`, `desa_kelurahan`, `kecamatan`, `k
 ON DUPLICATE KEY UPDATE `nama_posyandu` = VALUES(`nama_posyandu`);
 
 INSERT INTO `users` (`id`, `username`, `password`, `nama_lengkap`, `role`, `posyandu_id`) VALUES
-(1, 'kader1', '123456', 'Ibu Siti Rahmawati', 'kader', 1),
-(2, 'admin', 'admin123', 'dr. Budi Santoso (Puskesmas)', 'admin_puskesmas', NULL)
+(1, 'kader1', '123456', 'Ibu Siti Rahmawati (Melati 01)', 'kader', 1),
+(2, 'kader2', '123456', 'Ibu Sri Wahyuni (Mawar 03)', 'kader', 2),
+(3, 'admin', 'admin123', 'dr. Budi Santoso (Puskesmas)', 'admin_puskesmas', NULL)
 ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
 
 INSERT INTO `anak` (`id`, `nik`, `nama`, `tgl_lahir`, `jenis_kelamin`, `nama_ortu`, `no_wa`, `alamat`, `posyandu_id`) VALUES
