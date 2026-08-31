@@ -64,12 +64,20 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
           {/* User Info & Logout Right */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex flex-col text-right">
-              <span className="text-xs font-bold text-slate-800 leading-tight">
-                {user?.nama_lengkap || 'Pengguna'}
-              </span>
-              <span className="text-[10px] text-slate-400 capitalize">
-                {isAdmin ? 'Admin Puskesmas' : user?.nama_posyandu || 'Kader Posyandu'}
-              </span>
+              {isAdmin ? (
+                <span className="text-xs font-bold text-slate-800 leading-tight">
+                  Admin Puskesmas
+                </span>
+              ) : (
+                <>
+                  <span className="text-xs font-bold text-slate-800 leading-tight">
+                    {user?.nama_lengkap || 'Pengguna'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 capitalize">
+                    {user?.nama_posyandu || 'Kader Posyandu'}
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Tombol Logout */}
