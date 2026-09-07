@@ -36,62 +36,125 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
   const persentaseUkur = totalBalita > 0 ? Math.min(100, Math.round(((stats.total_timbang_bulan_ini || totalBalita) / totalBalita) * 100)) : 85;
 
   const isAdmin = user?.role === 'admin_puskesmas';
+  const currentDate = new Date().toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <div className="space-y-6">
-      {/* 4 Metric Cards Grid (Minimalist, Clean White Cards) */}
+      {/* Welcome Banner Card (Kartu Putih Bersih dengan Aksen Hijau Kesehatan) */}
+      <div className="bg-white rounded-3xl p-5 sm:p-7 border border-emerald-200/80 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 relative overflow-hidden">
+        {/* Subtle decorative health glow accent */}
+        <div className="absolute -right-12 -bottom-12 w-52 h-52 bg-emerald-50/80 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute right-32 -top-16 w-40 h-40 bg-teal-50/60 rounded-full blur-xl pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-l-3xl" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-xs font-semibold border border-emerald-200/70 shadow-2xs">
+              <span>📅 {currentDate}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+              Halo, {user?.nama_lengkap || (isAdmin ? 'Admin Puskesmas' : 'Ibu Kader')}! 👋
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {isAdmin
+                ? 'Pantau statistik tumbuh kembang balita dan pencegahan stunting di seluruh Posyandu binaan.'
+                : `Selamat bertugas di ${user?.nama_posyandu?.toLowerCase().startsWith('posyandu') ? user.nama_posyandu : `Posyandu ${user?.nama_posyandu || 'Melati'}`}. Mari pantau tumbuh kembang balita dengan mudah dan akurat.`}
+            </p>
+          </div>
+
+          {onNavigateToTimbang && (
+            <button
+              onClick={onNavigateToTimbang}
+              className="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-soft-sm transition-all duration-200 flex items-center justify-center gap-2.5 shrink-0 active:scale-95 group"
+            >
+              <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white transition-colors">
+                <Scale className="w-4 h-4" />
+              </div>
+              <span>Mulai Input Penimbangan</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 4 Metric Cards Grid (Healthcare Modern Soft Elevated) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {/* 1. Total Balita */}
-        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between h-32 sm:h-34">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-medium uppercase tracking-wider">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
             <span>Total Balita</span>
-            <Users className="w-4 h-4 text-slate-400" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-            {loading ? '...' : totalBalita}
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums">
+              {loading ? '...' : totalBalita}
+            </div>
+            <span className="text-[11px] text-slate-400">Terdaftar di Posyandu</span>
           </div>
-          <span className="text-[11px] text-slate-400">Terdaftar di Posyandu</span>
         </div>
 
         {/* 2. Telah Diukur */}
-        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between h-32 sm:h-34">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-medium uppercase tracking-wider">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
             <span>Telah Diukur</span>
-            <Ruler className="w-4 h-4 text-slate-400" />
+            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+              <Ruler className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-            {loading ? '...' : `${persentaseUkur}`}<span className="text-base font-normal text-slate-400 ml-0.5">%</span>
-          </div>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-            <div
-              className="bg-sky-600 h-full rounded-full transition-all duration-500"
-              style={{ width: `${persentaseUkur}%` }}
-            ></div>
+          <div className="my-2 space-y-1.5">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums flex items-baseline gap-1">
+              <span>{loading ? '...' : persentaseUkur}</span>
+              <span className="text-sm font-semibold text-slate-400">%</span>
+            </div>
+            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all duration-700"
+                style={{ width: `${persentaseUkur}%` }}
+              />
+            </div>
           </div>
         </div>
 
         {/* 3. Risiko Stunting */}
-        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between h-32 sm:h-34">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-medium uppercase tracking-wider">
-            <span>Risiko Stunting</span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-rose-100 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-center justify-between text-rose-700 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+            <span>Perlu Pantauan</span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-rose-600 tabular-nums">
-            {loading ? '...' : totalStunting}
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-rose-600 tabular-nums">
+              {loading ? '...' : totalStunting}
+            </div>
+            <span className="text-[11px] font-semibold text-rose-700/80 bg-rose-50 px-2 py-0.5 rounded-full inline-block mt-0.5">
+              Risiko Stunting / Pendek
+            </span>
           </div>
-          <span className="text-[11px] text-rose-600/90 font-medium">Perlu intervensi gizi</span>
         </div>
 
         {/* 4. Normal */}
-        <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between h-32 sm:h-34">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] sm:text-xs font-medium uppercase tracking-wider">
-            <span>Gizi Baik / Normal</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-100 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-center justify-between text-emerald-700 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+            <span>Gizi Normal</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums">
-            {loading ? '...' : totalNormal}
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 tabular-nums">
+              {loading ? '...' : totalNormal}
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-700/80 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-0.5">
+              Tumbuh Kembang Baik
+            </span>
           </div>
-          <span className="text-[11px] text-emerald-600/90 font-medium">Tumbuh kembang baik</span>
         </div>
       </div>
 
@@ -100,13 +163,15 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
         {/* Kolom Kiri (3 Kolom): Butuh Intervensi */}
         <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Perlu Pantauan Khusus</h2>
-            <span className="text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
-              {stats.stuntingList.length} Balita
-            </span>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900">Perlu Pantauan Khusus</h2>
+              <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full">
+                {stats.stuntingList.length} Balita
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden divide-y divide-slate-100">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft-sm overflow-hidden divide-y divide-slate-100">
             {stats.stuntingList && stats.stuntingList.length > 0 ? (
               stats.stuntingList.map((item, idx) => {
                 const initial = item.nama
@@ -160,16 +225,16 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
         {/* Kolom Kanan (2 Kolom): Log Pemeriksaan Terbaru */}
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Pemeriksaan Terbaru</h2>
+            <h2 className="text-base font-bold text-slate-900">Pemeriksaan Terbaru</h2>
             <button
               onClick={onNavigateToAnak}
-              className="text-xs font-medium text-sky-600 hover:text-sky-700"
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-800"
             >
-              Lihat semua
+              Lihat semua &rarr;
             </button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft-sm divide-y divide-slate-100 overflow-hidden">
             {stats.recentActivity && stats.recentActivity.length > 0 ? (
               stats.recentActivity.slice(0, 5).map((act, idx) => {
                 const isStunting = act.status_gizi?.includes('Stunting') || act.status_tb_u?.includes('Pendek');
@@ -178,22 +243,22 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
                   <div
                     key={act.id || idx}
                     onClick={() => onViewKms(act.anak_id)}
-                    className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+                    className="p-3.5 flex items-center justify-between hover:bg-emerald-50/50 cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/70 flex items-center justify-center text-slate-600 shrink-0">
-                        <Scale className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-center text-slate-600 shrink-0">
+                        <Scale className="w-4 h-4 text-emerald-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-slate-900 text-xs sm:text-sm">{act.nama_anak}</h3>
+                        <h3 className="font-semibold text-slate-900 text-xs sm:text-sm">{act.nama_anak}</h3>
                         <p className="text-[11px] text-slate-500 mt-0.5">
-                          BB: {act.berat_badan} kg • TB: {act.tinggi_badan} cm
+                          BB: <span className="font-semibold text-slate-700">{act.berat_badan} kg</span> • TB: <span className="font-semibold text-slate-700">{act.tinggi_badan} cm</span>
                         </p>
                       </div>
                     </div>
 
                     <span
-                      className={`px-2 py-0.5 text-[10px] font-medium rounded border shrink-0 ${
+                      className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full border shrink-0 ${
                         isStunting
                           ? 'bg-rose-50 text-rose-700 border-rose-200'
                           : 'bg-emerald-50 text-emerald-700 border-emerald-200'

@@ -1,31 +1,62 @@
 import React from 'react';
+import { CheckCircle2, AlertTriangle, AlertOctagon, HeartHandshake } from 'lucide-react';
 
 export default function StatusBadge({ status, size = 'md' }) {
   if (!status) return null;
 
   const s = status.toLowerCase();
 
-  let bgClass = 'bg-[#10b981] text-white';
+  let badgeStyle = {
+    container: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+    icon: CheckCircle2,
+    iconColor: 'text-emerald-600',
+  };
 
-  if (s.includes('stunting') || s.includes('pendek') || s.includes('buruk')) {
-    bgClass = 'bg-[#b91c1c] text-white';
-  } else if (s.includes('kurang') || s.includes('risiko') || s.includes('waspada')) {
-    bgClass = 'bg-[#eab308] text-white';
+  if (s.includes('stunting') || s.includes('sangat pendek') || s.includes('buruk')) {
+    badgeStyle = {
+      container: 'bg-rose-50 text-rose-800 border-rose-200/80',
+      icon: AlertOctagon,
+      iconColor: 'text-rose-600',
+    };
+  } else if (s.includes('pendek') || s.includes('kurang') || s.includes('risiko') || s.includes('waspada')) {
+    badgeStyle = {
+      container: 'bg-amber-50 text-amber-800 border-amber-200/80',
+      icon: AlertTriangle,
+      iconColor: 'text-amber-600',
+    };
   } else if (s.includes('gizi baik')) {
-    bgClass = 'bg-[#0077b6] text-white';
+    badgeStyle = {
+      container: 'bg-sky-50 text-sky-800 border-sky-200/80',
+      icon: HeartHandshake,
+      iconColor: 'text-sky-600',
+    };
   } else if (s.includes('normal')) {
-    bgClass = 'bg-[#10b981] text-white';
+    badgeStyle = {
+      container: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+      icon: CheckCircle2,
+      iconColor: 'text-emerald-600',
+    };
   }
 
-  const sizeClasses = size === 'sm' 
-    ? 'px-2 py-0.5 text-[10px] font-bold rounded-md' 
-    : size === 'lg'
-    ? 'px-3.5 py-1 text-xs font-bold rounded-full'
-    : 'px-2.5 py-0.5 text-[11px] font-bold rounded-full';
+  const Icon = badgeStyle.icon;
+
+  const sizeClasses =
+    size === 'sm'
+      ? 'px-2 py-0.5 text-[10px] gap-1 rounded-md'
+      : size === 'lg'
+      ? 'px-3.5 py-1 text-xs sm:text-sm gap-1.5 rounded-full'
+      : 'px-2.5 py-1 text-xs gap-1.5 rounded-full';
+
+  const iconSizes =
+    size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-4 h-4' : 'w-3.5 h-3.5';
 
   return (
-    <span className={`inline-flex items-center justify-center font-bold tracking-tight shadow-2xs ${bgClass} ${sizeClasses}`}>
-      {status}
+    <span
+      className={`inline-flex items-center font-semibold tracking-tight border ${badgeStyle.container} ${sizeClasses}`}
+    >
+      <Icon className={`${iconSizes} ${badgeStyle.iconColor} shrink-0`} />
+      <span>{status}</span>
     </span>
   );
 }
+

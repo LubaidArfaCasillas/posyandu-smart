@@ -238,34 +238,34 @@ export default function KmsChart({ anak, riwayat = [] }) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-4">
+    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-soft-sm space-y-5">
       {/* Header & Mode Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div>
-          <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+          <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
             Kurva Pertumbuhan KMS Digital
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Standar Antropometri WHO / Kemenkes RI • Balita{' '}
-            <span className="font-medium text-slate-700">{isBoy ? 'Laki-laki' : 'Perempuan'}</span>
+            Standar Antropometri WHO & Kemenkes RI • Balita{' '}
+            <span className="font-bold text-slate-700">{isBoy ? 'Laki-laki' : 'Perempuan'}</span>
           </p>
         </div>
 
         {/* Tab Switcher: BB/U vs TB/U (Segmented Control) */}
-        <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200/70 self-start sm:self-auto">
+        <div className="flex bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/70 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => {
               setActiveCurve('bb');
               setHoveredPoint(null);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               activeCurve === 'bb'
-                ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                ? 'bg-white text-emerald-800 shadow-soft-sm border border-emerald-200/80'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Scale className="w-3.5 h-3.5 text-slate-500" />
+            <Scale className="w-4 h-4 text-emerald-600" />
             <span>Berat Badan (BB/U)</span>
           </button>
 
@@ -275,13 +275,13 @@ export default function KmsChart({ anak, riwayat = [] }) {
               setActiveCurve('tb');
               setHoveredPoint(null);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               activeCurve === 'tb'
-                ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                ? 'bg-white text-emerald-800 shadow-soft-sm border border-emerald-200/80'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Ruler className="w-3.5 h-3.5 text-slate-500" />
+            <Ruler className="w-4 h-4 text-emerald-600" />
             <span>Tinggi Badan (TB/U)</span>
           </button>
         </div>
@@ -290,16 +290,16 @@ export default function KmsChart({ anak, riwayat = [] }) {
       {/* Indikator Status & Keterangan Pita KMS */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Pita Legenda Warna KMS */}
-        <div className="flex items-center gap-4 flex-wrap text-slate-600 text-[11px]">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2.5 flex-wrap text-slate-700 text-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span>Gizi Baik / Normal</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full border border-amber-200/80 font-semibold">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>Garis Kuning (Waspada)</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 text-rose-800 rounded-full border border-rose-200/80 font-semibold">
             <span className="w-2 h-2 rounded-full bg-rose-500"></span>
             <span>Bawah Garis Merah (BGM)</span>
           </div>
@@ -308,44 +308,58 @@ export default function KmsChart({ anak, riwayat = [] }) {
         {/* Status Tren KMS (N / T) */}
         {trendIndicator && (
           <div
-            className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 border ${
+            className={`px-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 border shadow-2xs ${
               trendIndicator.color === 'emerald'
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 : trendIndicator.color === 'rose'
-                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                ? 'bg-rose-50 text-rose-800 border-rose-200'
                 : trendIndicator.color === 'amber'
-                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                : 'bg-sky-50 text-sky-700 border-sky-200'
+                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : 'bg-sky-50 text-sky-800 border-sky-200'
             }`}
           >
             {trendIndicator.color === 'emerald' ? (
-              <TrendingUp className="w-3.5 h-3.5" />
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
             ) : trendIndicator.color === 'rose' ? (
-              <TrendingDown className="w-3.5 h-3.5" />
+              <TrendingDown className="w-4 h-4 text-rose-600" />
             ) : (
-              <Minus className="w-3.5 h-3.5" />
+              <Minus className="w-4 h-4 text-slate-600" />
             )}
-            <span>Status: {trendIndicator.label}</span>
+            <span>Status Pertumbuhan: {trendIndicator.label}</span>
           </div>
         )}
       </div>
 
       {/* Container SVG Grafik KMS */}
-      <div className="relative w-full overflow-x-auto rounded-lg bg-slate-50/40 p-2 border border-slate-200">
+      <div className="relative w-full overflow-x-auto rounded-2xl bg-white p-3 border border-slate-200/80 shadow-inner">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto min-w-[580px] select-none"
         >
           {/* 1. Pita Area Standar WHO (Clean, Calm Semi-Transparent Fills) */}
-          <path d={pathRedArea} fill="#ef4444" fillOpacity="0.08" />
-          <path d={pathYellowArea} fill="#f59e0b" fillOpacity="0.08" />
-          <path d={pathGreenArea} fill="#10b981" fillOpacity="0.09" />
+          <path d={pathRedArea} fill="#ef4444" fillOpacity="0.09" />
+          <path d={pathYellowArea} fill="#f59e0b" fillOpacity="0.09" />
+          <path d={pathGreenArea} fill="#10b981" fillOpacity="0.10" />
 
           {/* Garis batas kurva WHO */}
-          <path d={makeLinePath(ptsP2SD)} fill="none" stroke="#10b981" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-          <path d={makeLinePath(ptsMedian)} fill="none" stroke="#059669" strokeWidth="1.5" />
-          <path d={makeLinePath(ptsM2SD)} fill="none" stroke="#f59e0b" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.7" />
-          <path d={makeLinePath(ptsM3SD)} fill="none" stroke="#ef4444" strokeWidth="1.5" />
+          <path
+            d={makeLinePath(ptsP2SD)}
+            fill="none"
+            stroke="#10b981"
+            strokeWidth="1.2"
+            strokeDasharray="3 3"
+            opacity="0.7"
+          />
+          <path d={makeLinePath(ptsMedian)} fill="none" stroke="#059669" strokeWidth="1.8" />
+          <path
+            d={makeLinePath(ptsM2SD)}
+            fill="none"
+            stroke="#f59e0b"
+            strokeWidth="1.2"
+            strokeDasharray="3 3"
+            opacity="0.8"
+          />
+          <path d={makeLinePath(ptsM3SD)} fill="none" stroke="#ef4444" strokeWidth="1.8" />
 
           {/* 2. Grid Garis Horizontal (Sumbu Y) */}
           {yTicks.map((val) => {
@@ -357,16 +371,15 @@ export default function KmsChart({ anak, riwayat = [] }) {
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
-                  stroke="#e2e8f0"
-                  strokeWidth="0.75"
-                  strokeDasharray="2 2"
+                  stroke="#f1f5f9"
+                  strokeWidth="1"
                 />
                 <text
                   x={padding.left - 8}
                   y={y + 3.5}
                   textAnchor="end"
                   fontSize="10"
-                  fontWeight="500"
+                  fontWeight="600"
                   fill="#94a3b8"
                 >
                   {val}
@@ -379,9 +392,9 @@ export default function KmsChart({ anak, riwayat = [] }) {
           <text
             x={padding.left}
             y={padding.top - 10}
-            fontSize="10"
-            fontWeight="600"
-            fill="#475569"
+            fontSize="11"
+            fontWeight="700"
+            fill="#334155"
           >
             {activeCurve === 'bb' ? 'Berat Badan (kg)' : 'Tinggi Badan (cm)'}
           </text>
@@ -396,16 +409,15 @@ export default function KmsChart({ anak, riwayat = [] }) {
                   y1={padding.top}
                   x2={x}
                   y2={height - padding.bottom}
-                  stroke="#e2e8f0"
-                  strokeWidth="0.75"
-                  strokeDasharray="2 2"
+                  stroke="#f1f5f9"
+                  strokeWidth="1"
                 />
                 <text
                   x={x}
                   y={height - padding.bottom + 16}
                   textAnchor="middle"
                   fontSize="10"
-                  fontWeight="500"
+                  fontWeight="600"
                   fill="#94a3b8"
                 >
                   {month}
@@ -420,8 +432,8 @@ export default function KmsChart({ anak, riwayat = [] }) {
             y={height - padding.bottom + 34}
             textAnchor="end"
             fontSize="10"
-            fontWeight="500"
-            fill="#94a3b8"
+            fontWeight="700"
+            fill="#64748b"
           >
             Usia (Bulan)
           </text>
@@ -433,7 +445,7 @@ export default function KmsChart({ anak, riwayat = [] }) {
                 d={childLinePath}
                 fill="none"
                 stroke="#0284c7"
-                strokeWidth="2.5"
+                strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -451,14 +463,17 @@ export default function KmsChart({ anak, riwayat = [] }) {
                     onMouseEnter={() => setHoveredPoint(pt)}
                     onClick={() => setHoveredPoint(pt)}
                   >
-                    {/* Ring Luar Saat Hover */}
+                    {/* Ring Luar Luas untuk Touch Target Mobile yang Nyaman */}
+                    <circle cx={cx} cy={cy} r="14" fill="transparent" />
+
+                    {/* Ring Efek Saat Hover */}
                     {isHovered && (
                       <circle
                         cx={cx}
                         cy={cy}
-                        r="9"
+                        r="10"
                         fill="#0284c7"
-                        fillOpacity="0.15"
+                        fillOpacity="0.2"
                       />
                     )}
 
@@ -466,19 +481,19 @@ export default function KmsChart({ anak, riwayat = [] }) {
                     <circle
                       cx={cx}
                       cy={cy}
-                      r={isHovered ? '5' : '4'}
+                      r={isHovered ? '6' : '4.5'}
                       fill="#ffffff"
                       stroke="#0284c7"
-                      strokeWidth="2.5"
+                      strokeWidth="3"
                     />
 
                     {/* Label Angka Nilai di Atas Titik */}
                     <text
                       x={cx}
-                      y={cy - 8}
+                      y={cy - 10}
                       textAnchor="middle"
-                      fontSize="9"
-                      fontWeight="600"
+                      fontSize="10"
+                      fontWeight="700"
                       fill="#0f172a"
                       className="select-none"
                     >
@@ -496,32 +511,32 @@ export default function KmsChart({ anak, riwayat = [] }) {
             y={getY(ptsMedian[ptsMedian.length - 1].y) - 4}
             textAnchor="end"
             fontSize="9"
-            fontWeight="600"
+            fontWeight="700"
             fill="#059669"
-            opacity="0.8"
+            opacity="0.9"
           >
-            Median
+            Median WHO
           </text>
           <text
             x={width - padding.right - 10}
             y={getY(ptsM3SD[ptsM3SD.length - 1].y) + 12}
             textAnchor="end"
             fontSize="9"
-            fontWeight="600"
+            fontWeight="700"
             fill="#dc2626"
-            opacity="0.8"
+            opacity="0.9"
           >
-            Garis Merah
+            Garis Merah (BGM)
           </text>
         </svg>
 
         {/* Empty State jika belum ada pengukuran */}
         {childPoints.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
-            <div className="text-center p-4">
-              <Info className="w-5 h-5 mx-auto text-slate-400 mb-1" />
-              <p className="text-xs font-semibold text-slate-700">Belum Ada Data Pengukuran</p>
-              <p className="text-[11px] text-slate-400">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-2xl">
+            <div className="text-center p-4 space-y-1">
+              <Info className="w-6 h-6 mx-auto text-slate-400 mb-1" />
+              <p className="text-xs font-bold text-slate-800">Belum Ada Data Pengukuran</p>
+              <p className="text-xs text-slate-500">
                 Input penimbangan balita untuk melihat titik pada kurva KMS.
               </p>
             </div>
@@ -531,25 +546,25 @@ export default function KmsChart({ anak, riwayat = [] }) {
 
       {/* Detail Titik Timbang yang Dipilih / Dihover */}
       {hoveredPoint && (
-        <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 bg-sky-50/70 border border-sky-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-fadeIn">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-900">
+              <span className="font-bold text-slate-900 text-sm">
                 Usia {hoveredPoint.data.usia_bulan} Bulan
               </span>
               <span className="text-slate-300">•</span>
-              <span className="text-slate-500">
-                Tgl: {new Date(hoveredPoint.data.tgl_timbang).toLocaleDateString('id-ID')}
+              <span className="text-slate-600 font-medium">
+                Tanggal: {new Date(hoveredPoint.data.tgl_timbang).toLocaleDateString('id-ID')}
               </span>
             </div>
-            <p className="text-slate-600 text-[11px]">
-              Berat: <span className="font-semibold text-slate-800">{hoveredPoint.data.berat_badan} kg</span> | Tinggi:{' '}
-              <span className="font-semibold text-slate-800">{hoveredPoint.data.tinggi_badan} cm</span>
+            <p className="text-slate-700 text-xs">
+              Berat: <span className="font-extrabold text-slate-900">{hoveredPoint.data.berat_badan} kg</span> | Tinggi:{' '}
+              <span className="font-extrabold text-slate-900">{hoveredPoint.data.tinggi_badan} cm</span>
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 bg-white rounded-md text-slate-700 border border-slate-200 text-xs font-medium shadow-xs">
+            <span className="px-3 py-1 bg-white rounded-full text-slate-800 border border-sky-200 text-xs font-bold shadow-soft-sm">
               Status Gizi: {hoveredPoint.data.status_gizi || 'Normal'}
             </span>
           </div>
@@ -557,10 +572,10 @@ export default function KmsChart({ anak, riwayat = [] }) {
       )}
 
       {/* Catatan Panduan KMS */}
-      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/70 flex items-start gap-2.5 text-[11px] text-slate-600 leading-relaxed">
-        <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+      <div className="p-4 bg-gradient-to-r from-sky-50 to-teal-50/40 rounded-2xl border border-sky-100 flex items-start gap-3 text-xs text-slate-700 leading-relaxed">
+        <Info className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-slate-800">Petunjuk Pembacaan KMS:</span> Titik penimbangan yang mengikuti arah pita hijau menandakan tumbuh kembang normal. Jika grafik mendatar atau menurun mendekati garis kuning/merah, segera lakukan evaluasi asupan gizi atau konsultasi ke bidan/tenaga kesehatan.
+          <span className="font-bold text-sky-950">Petunjuk Pembacaan KMS untuk Kader:</span> Titik penimbangan yang mengikuti arah pita hijau menandakan tumbuh kembang normal. Jika grafik mendatar atau menurun mendekati garis kuning/merah, segera lakukan evaluasi asupan gizi balita atau konsultasi ke bidan desa / Puskesmas.
         </div>
       </div>
     </div>

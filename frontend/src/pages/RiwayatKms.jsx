@@ -100,15 +100,18 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
   return (
     <div className="space-y-5">
       {/* Selector Dropdown Balita */}
-      <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <label htmlFor="select-balita" className="text-xs font-semibold text-slate-700 sm:pl-1">
-          Pilih Balita:
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-soft-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <label htmlFor="select-balita" className="text-xs sm:text-sm font-bold text-slate-800 sm:pl-1 flex items-center gap-2">
+          <span>Pilih Balita:</span>
+          <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+            {anakList.length} Balita
+          </span>
         </label>
         <select
           id="select-balita"
           value={selectedAnakId}
           onChange={(e) => setSelectedAnakId(e.target.value)}
-          className="flex-1 sm:max-w-md px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-sky-600 focus:border-sky-600"
+          className="flex-1 sm:max-w-md px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all"
         >
           {anakList.map((a) => (
             <option key={a.id} value={a.id}>
@@ -119,31 +122,37 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-xl p-12 text-center text-xs text-slate-400 space-y-2 border border-slate-200">
-          <div className="w-5 h-5 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p>Memuat Lembar KMS...</p>
+        <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 space-y-2 border border-slate-200/80 shadow-soft-sm">
+          <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="font-semibold text-slate-600">Memuat Lembar KMS Balita...</p>
         </div>
       ) : !anakDetail ? (
-        <div className="bg-white rounded-xl p-8 text-center text-xs text-slate-400 border border-slate-200">
-          Pilih balita untuk melihat riwayat KMS.
+        <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-soft-sm">
+          Pilih balita untuk melihat riwayat pertumbuhan KMS.
         </div>
       ) : (
         <>
           {/* Card Profil Balita */}
-          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3.5">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-soft-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-4">
               {/* Monogram Inisial Avatar */}
-              <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">
+              <div
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center font-extrabold text-base shrink-0 border ${
+                  isBoy
+                    ? 'bg-sky-50 text-sky-700 border-sky-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
+                }`}
+              >
                 {initials}
               </div>
 
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
                     {anakDetail.nama}
                   </h2>
                   <span
-                    className={`px-2 py-0.5 rounded text-[11px] font-medium border ${
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
                       isBoy
                         ? 'bg-sky-50 text-sky-700 border-sky-200'
                         : 'bg-rose-50 text-rose-700 border-rose-200'
@@ -153,16 +162,32 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
-                  <span>Usia: <strong className="text-slate-700 font-semibold">{anakDetail.usia_sekarang_bulan} Bulan</strong></span>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-slate-500">
+                  <span>
+                    Usia:{' '}
+                    <strong className="text-slate-800 font-bold">
+                      {anakDetail.usia_sekarang_bulan} Bulan
+                    </strong>
+                  </span>
                   <span>•</span>
-                  <span>Lahir: <span className="text-slate-700">{new Date(anakDetail.tgl_lahir).toLocaleDateString('id-ID')}</span></span>
+                  <span>
+                    Lahir:{' '}
+                    <span className="text-slate-700 font-medium">
+                      {new Date(anakDetail.tgl_lahir).toLocaleDateString('id-ID')}
+                    </span>
+                  </span>
                   <span>•</span>
-                  <span>Orang Tua: <strong className="text-slate-700 font-semibold">{anakDetail.nama_ortu}</strong></span>
+                  <span>
+                    Orang Tua:{' '}
+                    <strong className="text-slate-800 font-semibold">{anakDetail.nama_ortu}</strong>
+                  </span>
                   {anakDetail.no_wa && (
                     <>
                       <span>•</span>
-                      <span>WA: <span className="text-slate-700">{anakDetail.no_wa}</span></span>
+                      <span>
+                        WA:{' '}
+                        <span className="text-slate-800 font-medium">{anakDetail.no_wa}</span>
+                      </span>
                     </>
                   )}
                 </div>
@@ -170,14 +195,14 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
             </div>
 
             {/* Tombol Aksi Cepat */}
-            <div className="flex items-center gap-2 self-start md:self-auto shrink-0 flex-wrap">
+            <div className="flex items-center gap-2.5 self-start md:self-auto shrink-0 flex-wrap">
               {!isAdmin && onNavigateToTimbang && (
                 <button
                   type="button"
                   onClick={() => onNavigateToTimbang(anakDetail.id)}
-                  className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-soft-sm transition-all flex items-center gap-2 active:scale-95"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>Input Timbang Baru</span>
                 </button>
               )}
@@ -186,9 +211,9 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
                 type="button"
                 onClick={handleResendWA}
                 disabled={resending}
-                className="px-3.5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl border border-emerald-300 hover:bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+                <MessageSquare className="w-4 h-4 text-emerald-600" />
                 <span>{resending ? 'Mengirim...' : 'Kirim Laporan WA'}</span>
               </button>
             </div>
@@ -202,14 +227,14 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
             {/* Kolom Kiri (7 Kolom): Riwayat Bulanan */}
             <div className="lg:col-span-7 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
-                  Catatan Pengukuran ({anakDetail.riwayat?.length || 0})
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                  Catatan Pengukuran Bulanan ({anakDetail.riwayat?.length || 0})
                 </h3>
-                <span className="text-xs text-slate-400">Urut dari terbaru</span>
+                <span className="text-xs text-slate-400 font-medium">Urut dari terbaru</span>
               </div>
 
               {!anakDetail.riwayat || anakDetail.riwayat.length === 0 ? (
-                <div className="bg-white rounded-xl p-8 text-center border border-slate-200 text-xs text-slate-400">
+                <div className="bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-soft-sm text-xs text-slate-400">
                   Belum ada riwayat pengukuran bulanan untuk balita ini.
                 </div>
               ) : (
@@ -225,30 +250,38 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
                       return (
                         <div
                           key={rec.id}
-                          className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-xs flex items-center justify-between hover:border-slate-300 transition-colors"
+                          className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-soft-sm flex items-center justify-between hover:border-emerald-300/80 transition-colors"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-slate-100 border border-slate-200/70 rounded-lg flex flex-col items-center justify-center text-slate-700 shrink-0">
-                              <span className="text-[9px] text-slate-500 font-medium uppercase leading-none">Bln</span>
-                              <span className="text-sm font-bold leading-tight">{rec.usia_bulan}</span>
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-11 h-11 bg-emerald-50 border border-emerald-200/80 rounded-xl flex flex-col items-center justify-center text-emerald-800 shrink-0">
+                              <span className="text-[9px] font-bold uppercase leading-none">Bln</span>
+                              <span className="text-base font-extrabold leading-tight">{rec.usia_bulan}</span>
                             </div>
 
                             <div>
-                              <div className="flex items-center gap-3 text-xs">
-                                <span>BB: <strong className="text-slate-800">{rec.berat_badan} kg</strong></span>
-                                <span>TB: <strong className="text-slate-800">{rec.tinggi_badan} cm</strong></span>
+                              <div className="flex items-center gap-3 text-xs sm:text-sm">
+                                <span>
+                                  BB: <strong className="text-slate-900 font-bold">{rec.berat_badan} kg</strong>
+                                </span>
+                                <span>•</span>
+                                <span>
+                                  TB: <strong className="text-slate-900 font-bold">{rec.tinggi_badan} cm</strong>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
                                 <span className="text-slate-400 text-[11px]">
                                   {new Date(rec.tgl_timbang).toLocaleDateString('id-ID')}
                                 </span>
+                                <span className="text-slate-300">•</span>
+                                <span className="text-[11px] font-semibold text-slate-600">
+                                  {rec.status_gizi || 'Gizi Baik'}
+                                </span>
                               </div>
-                              <p className="text-[11px] text-slate-500 mt-0.5">
-                                Status: <span className="font-medium text-slate-700">{rec.status_gizi || 'Gizi Baik'}</span>
-                              </p>
                             </div>
                           </div>
 
                           <span
-                            className={`px-2 py-0.5 text-[11px] font-medium rounded border shrink-0 ${
+                            className={`px-2.5 py-1 text-xs font-bold rounded-full border shrink-0 ${
                               isStunting
                                 ? 'bg-rose-50 text-rose-700 border-rose-200'
                                 : 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -266,86 +299,110 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
             {/* Kolom Kanan (5 Kolom): Ringkasan Antropometri Terkini */}
             <div className="lg:col-span-5 space-y-4">
               {/* Card Status Terakhir */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-3.5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <h4 className="font-semibold text-slate-900 text-sm">
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-soft-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h4 className="font-bold text-slate-900 text-sm sm:text-base">
                     Status Pengukuran Terakhir
                   </h4>
                   {latestRecord && (
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-full">
                       {new Date(latestRecord.tgl_timbang).toLocaleDateString('id-ID')}
                     </span>
                   )}
                 </div>
 
                 {latestRecord ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/70">
+                      <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-slate-500 font-medium">Berat Badan</span>
-                          <Scale className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-xs text-slate-500 font-bold uppercase">Berat Badan</span>
+                          <Scale className="w-4 h-4 text-emerald-600" />
                         </div>
-                        <div className="text-base font-bold text-slate-900 mt-1">
+                        <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">
                           {latestRecord.berat_badan} <span className="text-xs font-normal text-slate-500">kg</span>
                         </div>
                         {deltaBB !== null && (
-                          <div className={`text-[10px] font-medium mt-0.5 flex items-center gap-0.5 ${
-                            deltaBB > 0 ? 'text-emerald-600' : deltaBB < 0 ? 'text-rose-600' : 'text-slate-500'
-                          }`}>
-                            {deltaBB > 0 ? `+${deltaBB} kg dari bln lalu` : deltaBB < 0 ? `${deltaBB} kg dari bln lalu` : 'Tetap (0 kg)'}
+                          <div
+                            className={`text-xs font-bold mt-1 flex items-center gap-1 ${
+                              deltaBB > 0
+                                ? 'text-emerald-600'
+                                : deltaBB < 0
+                                ? 'text-rose-600'
+                                : 'text-slate-500'
+                            }`}
+                          >
+                            {deltaBB > 0 ? (
+                              <TrendingUp className="w-3.5 h-3.5" />
+                            ) : deltaBB < 0 ? (
+                              <TrendingDown className="w-3.5 h-3.5" />
+                            ) : (
+                              <Minus className="w-3.5 h-3.5" />
+                            )}
+                            <span>{deltaBB > 0 ? `+${deltaBB} kg` : `${deltaBB} kg`} bln lalu</span>
                           </div>
                         )}
                       </div>
 
-                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/70">
+                      <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-slate-500 font-medium">Tinggi Badan</span>
-                          <Ruler className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-xs text-slate-500 font-bold uppercase">Tinggi Badan</span>
+                          <Ruler className="w-4 h-4 text-teal-600" />
                         </div>
-                        <div className="text-base font-bold text-slate-900 mt-1">
+                        <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">
                           {latestRecord.tinggi_badan} <span className="text-xs font-normal text-slate-500">cm</span>
                         </div>
                         {deltaTB !== null && (
-                          <div className="text-[10px] font-medium text-emerald-600 mt-0.5">
-                            {deltaTB > 0 ? `+${deltaTB} cm dari bln lalu` : 'Tetap'}
+                          <div className="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1">
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            <span>{deltaTB > 0 ? `+${deltaTB} cm` : 'Tetap'} bln lalu</span>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 pt-1 text-xs">
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Klasifikasi Gizi (BB/U):</span>
-                        <span className="font-semibold text-slate-800">{latestRecord.status_gizi || 'Gizi Baik'}</span>
+                    <div className="space-y-2 pt-1 text-xs sm:text-sm">
+                      <div className="flex justify-between py-1.5 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Klasifikasi Gizi (BB/U):</span>
+                        <span className="font-bold text-slate-800">{latestRecord.status_gizi || 'Gizi Baik'}</span>
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Klasifikasi Stunting (TB/U):</span>
-                        <span className="font-semibold text-slate-800">{latestRecord.status_tb_u || 'Normal'}</span>
+                      <div className="flex justify-between py-1.5 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Klasifikasi Stunting (TB/U):</span>
+                        <span className="font-bold text-slate-800">{latestRecord.status_tb_u || 'Normal'}</span>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 py-2">Belum ada data pengukuran.</p>
+                  <p className="text-xs text-slate-400 py-3 text-center">Belum ada data pengukuran.</p>
                 )}
               </div>
 
               {/* Card Kaidah Pertumbuhan KMS */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-3">
-                <h4 className="font-semibold text-slate-900 text-xs sm:text-sm">
-                  Kaidah Pertumbuhan KMS (Kemenkes)
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-soft-sm space-y-3">
+                <h4 className="font-bold text-slate-900 text-xs sm:text-sm uppercase tracking-wider">
+                  Kaidah Pertumbuhan KMS (Kemenkes RI)
                 </h4>
-                <div className="space-y-2 text-[11px] text-slate-600 leading-relaxed">
-                  <div className="flex items-start gap-2">
-                    <span className="font-bold text-emerald-600 shrink-0">N (Naik):</span>
-                    <span>Berat badan bertambah mengikuti garis kurva pertumbuhan atau naik ke pita warna di atasnya.</span>
+                <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+                  <div className="flex items-start gap-2.5 p-2 bg-emerald-50/60 rounded-xl border border-emerald-100">
+                    <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                      N
+                    </span>
+                    <div>
+                      <strong className="text-emerald-900 block">Naik (N)</strong>
+                      <span>Berat badan bertambah mengikuti arah garis kurva standar pertumbuhan KMS.</span>
+                    </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="font-bold text-rose-600 shrink-0">T (Tidak Naik):</span>
-                    <span>Berat badan mendatar, menurun, atau kenaikannya kurang dari batas kenaikan minimal (KBM).</span>
+                  <div className="flex items-start gap-2.5 p-2 bg-rose-50/60 rounded-xl border border-rose-100">
+                    <span className="w-5 h-5 rounded-md bg-rose-600 text-white font-extrabold flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                      T
+                    </span>
+                    <div>
+                      <strong className="text-rose-900 block">Tidak Naik (T)</strong>
+                      <span>Berat badan mendatar, menurun, atau kenaikannya di bawah Kenaikan Berat Minimal (KBM).</span>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                    Bila berat badan anak berstatus <strong>T selama 2 bulan berturut-turut (2T)</strong>, kader wajib merujuk balita ke Puskesmas.
+                  <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-100 leading-normal">
+                    ⚠️ Bila berat badan anak berstatus <strong>T selama 2 bulan berturut-turut (2T)</strong>, kader wajib segera merujuk balita ke Puskesmas.
                   </p>
                 </div>
               </div>
