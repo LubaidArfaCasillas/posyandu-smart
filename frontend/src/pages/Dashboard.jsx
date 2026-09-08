@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Ruler, AlertTriangle, CheckCircle2, Check, ArrowDown, Scale } from 'lucide-react';
+import { Users, Ruler, AlertTriangle, CheckCircle2, Check, ArrowDown, Scale, Download, FileSpreadsheet } from 'lucide-react';
 import api from '../api/client';
 
 export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak, onViewKms }) {
@@ -11,6 +11,8 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
     recentActivity: [],
   });
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -27,6 +29,89 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
       console.error('Gagal mengambil statistik dashboard:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportLaporan = async () => {
+    try {
+      setExportLoading(true);
+      const res = await api.get('/dashboard/export-laporan', {
+        params: {
+          bulan: selectedMonth,
+          posyandu_id: user?.posyandu_id || undefined,
+        },
+      });
+
+      if (!res.data.success || !res.data.data || res.data.data.length === 0) {
+        alert(`Tidak ada data penimbangan balita pada periode ${selectedMonth}`);
+        return;
+      }
+
+      const rows = res.data.data;
+      const headers = [
+        'No',
+        'Tanggal Timbang',
+        'Nama Posyandu',
+        'NIK Balita',
+        'Nama Balita',
+        'Jenis Kelamin',
+        'Tanggal Lahir',
+        'Usia (Bulan)',
+        'Nama Orang Tua',
+        'No. WhatsApp',
+        'Berat Badan (kg)',
+        'Tinggi Badan (cm)',
+        'Lingkar Kepala (cm)',
+        'Status BB/U',
+        'Status TB/U (Stunting)',
+        'Status BB/TB',
+        'Kesimpulan Status Gizi',
+        'Catatan Kader',
+        'Status WhatsApp',
+        'Petugas Pemeriksa',
+      ];
+
+      const csvRows = [
+        headers.join(','),
+        ...rows.map((r, idx) => [
+          idx + 1,
+          `"${r.tgl_timbang}"`,
+          `"${(r.nama_posyandu || '').replace(/"/g, '""')}"`,
+          `'${r.nik}'`,
+          `"${(r.nama_anak || '').replace(/"/g, '""')}"`,
+          `"${r.jenis_kelamin}"`,
+          `"${r.tgl_lahir}"`,
+          r.usia_bulan,
+          `"${(r.nama_ortu || '').replace(/"/g, '""')}"`,
+          `'${r.no_wa}'`,
+          r.berat_badan,
+          r.tinggi_badan,
+          `"${r.lingkar_kepala}"`,
+          `"${(r.status_bb_u || '').replace(/"/g, '""')}"`,
+          `"${(r.status_tb_u || '').replace(/"/g, '""')}"`,
+          `"${(r.status_bb_tb || '').replace(/"/g, '""')}"`,
+          `"${(r.status_gizi || '').replace(/"/g, '""')}"`,
+          `"${(r.catatan || '').replace(/"/g, '""')}"`,
+          `"${r.status_wa}"`,
+          `"${(r.nama_petugas || '').replace(/"/g, '""')}"`,
+        ].join(',')),
+      ];
+
+      const csvString = '\uFEFF' + csvRows.join('\r\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Laporan_PosyanduSmart_${selectedMonth}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Gagal unduh laporan:', err);
+      alert('Gagal mengunduh laporan: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -67,17 +152,39 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
             </p>
           </div>
 
-          {onNavigateToTimbang && (
-            <button
-              onClick={onNavigateToTimbang}
-              className="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-soft-sm transition-all duration-200 flex items-center justify-center gap-2.5 shrink-0 active:scale-95 group"
-            >
-              <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white transition-colors">
-                <Scale className="w-4 h-4" />
-              </div>
-              <span>Mulai Input Penimbangan</span>
-            </button>
-          )}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+            {/* Tombol Unduh Laporan Bulanan (Excel/CSV) di Banner */}
+            <div className="flex items-center gap-1.5 bg-slate-50/90 border border-slate-200/90 p-1.5 rounded-2xl shadow-2xs">
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-600 cursor-pointer"
+                title="Pilih Bulan Rekap Laporan"
+              />
+              <button
+                onClick={handleExportLaporan}
+                disabled={exportLoading}
+                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-soft-sm transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                title="Unduh Rekap Laporan Bulanan (Format Excel / CSV)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>{exportLoading ? 'Mengunduh...' : 'Unduh Laporan'}</span>
+              </button>
+            </div>
+
+            {onNavigateToTimbang && (
+              <button
+                onClick={onNavigateToTimbang}
+                className="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-soft-sm transition-all duration-200 flex items-center justify-center gap-2.5 shrink-0 active:scale-95 group"
+              >
+                <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white transition-colors">
+                  <Scale className="w-4 h-4" />
+                </div>
+                <span>Mulai Input Penimbangan</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -155,6 +262,46 @@ export default function Dashboard({ user, onNavigateToTimbang, onNavigateToAnak,
               Tumbuh Kembang Baik
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Banner Khusus Fitur Rekap Laporan Bulanan Puskesmas (Excel / CSV) */}
+      <div className="bg-gradient-to-r from-emerald-50/80 via-teal-50/50 to-white rounded-3xl p-5 sm:p-6 border border-emerald-200/80 shadow-soft-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white shadow-soft-sm flex items-center justify-center shrink-0">
+            <FileSpreadsheet className="w-6 h-6" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
+                Rekap Laporan Bulanan Penimbangan (Excel / CSV)
+              </h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300/60">
+                Resmi
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
+              Unduh rekap bulanan lengkap (NIK, riwayat berat/tinggi, Z-Score WHO, status stunting, dan catatan kader) untuk arsip Posyandu dan pelaporan Puskesmas.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 cursor-pointer shadow-2xs"
+            title="Pilih Bulan Rekap"
+          />
+          <button
+            onClick={handleExportLaporan}
+            disabled={exportLoading}
+            className="flex-1 md:flex-initial px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-soft-sm transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            <span>{exportLoading ? 'Sedang Mengekspor...' : 'Unduh File CSV / Excel'}</span>
+          </button>
         </div>
       </div>
 

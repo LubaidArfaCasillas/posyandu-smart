@@ -65,6 +65,68 @@ async function getStats(req, res) {
   }
 }
 
+// GET /api/dashboard/export-laporan
+async function exportLaporan(req, res) {
+  try {
+    const { bulan, posyandu_id } = req.query;
+
+    let sql = `
+      SELECT 
+        p.id,
+        DATE_FORMAT(p.tgl_timbang, '%Y-%m-%d') AS tgl_timbang,
+        COALESCE(pos.nama_posyandu, 'Posyandu') AS nama_posyandu,
+        COALESCE(a.nik, '-') AS nik,
+        a.nama AS nama_anak,
+        CASE WHEN a.jenis_kelamin = 'L' THEN 'Laki-laki' ELSE 'Perempuan' END AS jenis_kelamin,
+        DATE_FORMAT(a.tgl_lahir, '%Y-%m-%d') AS tgl_lahir,
+        p.usia_bulan,
+        a.nama_ortu,
+        a.no_wa,
+        p.berat_badan,
+        p.tinggi_badan,
+        COALESCE(p.lingkar_kepala, '-') AS lingkar_kepala,
+        p.status_bb_u,
+        p.status_tb_u,
+        p.status_bb_tb,
+        p.status_gizi,
+        COALESCE(p.catatan, '-') AS catatan,
+        p.status_wa,
+        COALESCE(u.nama_lengkap, '-') AS nama_petugas
+      FROM penimbangan p
+      JOIN anak a ON p.anak_id = a.id
+      LEFT JOIN posyandu pos ON a.posyandu_id = pos.id
+      LEFT JOIN users u ON p.petugas_id = u.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (bulan && bulan !== 'all') {
+      sql += ` AND DATE_FORMAT(p.tgl_timbang, '%Y-%m') = ?`;
+      params.push(bulan);
+    }
+
+    if (posyandu_id) {
+      sql += ` AND a.posyandu_id = ?`;
+      params.push(posyandu_id);
+    }
+
+    sql += ` ORDER BY p.tgl_timbang DESC, p.id DESC`;
+
+    const [rows] = await pool.query(sql, params);
+
+    res.json({
+      success: true,
+      data: rows,
+      total: rows.length,
+      bulan: bulan || 'Semua Periode',
+    });
+  } catch (error) {
+    console.error('Error exportLaporan:', error);
+    res.status(500).json({ success: false, message: 'Gagal mengekspor laporan', error: error.message });
+  }
+}
+
 module.exports = {
   getStats,
+  exportLaporan,
 };

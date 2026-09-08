@@ -45,7 +45,8 @@ router.post('/penimbangan', timbangController.createPenimbangan);
 router.get('/penimbangan/riwayat/:anak_id', timbangController.getRiwayatAnak);
 router.post('/penimbangan/:id/resend-wa', timbangController.resendWA);
 
-// 6. Dashboard Puskesmas
+// 6. Dashboard Puskesmas & Laporan
 router.get('/dashboard/stats', dashboardController.getStats);
+router.get('/dashboard/export-laporan', dashboardController.exportLaporan);
 
 module.exports = router;
