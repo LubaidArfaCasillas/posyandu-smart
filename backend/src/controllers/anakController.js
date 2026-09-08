@@ -113,9 +113,18 @@ async function updateAnak(req, res) {
     const { id } = req.params;
     const { nik, nama, tgl_lahir, jenis_kelamin, nama_ortu, no_wa, alamat, posyandu_id } = req.body;
 
+    if (!nama || !tgl_lahir || !jenis_kelamin || !nama_ortu || !no_wa) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nama, tgl lahir, jenis kelamin, nama orang tua, dan No. WA wajib diisi',
+      });
+    }
+
+    const tglFormatted = tgl_lahir.split('T')[0];
+
     await pool.query(
-      `UPDATE anak SET nik=?, nama=?, tgl_lahir=?, jenis_kelamin=?, nama_ortu=?, no_wa=?, alamat=?, posyandu_id=? WHERE id=?`,
-      [nik || null, nama, tgl_lahir, jenis_kelamin, nama_ortu, no_wa, alamat || '', posyandu_id || 1, id]
+      `UPDATE anak SET nik=?, nama=?, tgl_lahir=?, jenis_kelamin=?, nama_ortu=?, no_wa=?, alamat=?, posyandu_id=COALESCE(?, posyandu_id) WHERE id=?`,
+      [nik || null, nama, tglFormatted, jenis_kelamin, nama_ortu, no_wa, alamat || '', posyandu_id || null, id]
     );
 
     res.json({ success: true, message: 'Data anak berhasil diperbarui' });

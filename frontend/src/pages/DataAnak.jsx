@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MessageSquare, Scale, TrendingUp, User, UserPlus, X, Phone, Calendar } from 'lucide-react';
+import { Search, MessageSquare, Scale, TrendingUp, User, UserPlus, X, Phone, Calendar, Pencil, Trash2 } from 'lucide-react';
 import api from '../api/client';
 
 export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
@@ -9,8 +9,10 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
 
   const isAdmin = user?.role === 'admin_puskesmas';
 
-  // Modal Tambah Balita Baru
+  // Modal Tambah / Edit Balita
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' | 'edit'
+  const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     nik: '',
     nama: '',
@@ -43,6 +45,8 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
 
   const handleOpenAdd = () => {
     if (isAdmin) return;
+    setModalMode('add');
+    setEditId(null);
     setFormData({
       nik: '',
       nama: '',
@@ -56,6 +60,40 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
     setModalOpen(true);
   };
 
+  const handleOpenEdit = (anak) => {
+    if (isAdmin) return;
+    setModalMode('edit');
+    setEditId(anak.id);
+    setFormData({
+      nik: anak.nik || '',
+      nama: anak.nama || '',
+      tgl_lahir: anak.tgl_lahir ? anak.tgl_lahir.split('T')[0] : '',
+      jenis_kelamin: anak.jenis_kelamin || 'L',
+      nama_ortu: anak.nama_ortu || '',
+      no_wa: anak.no_wa || '',
+      alamat: anak.alamat || '',
+    });
+    setErrorMsg('');
+    setModalOpen(true);
+  };
+
+  const handleDeleteAnak = async (anak) => {
+    if (isAdmin) return;
+    const confirmDelete = window.confirm(
+      `Apakah Anda yakin ingin menghapus balita "${anak.nama}"?\n\nPERINGATAN: Seluruh riwayat catatan KMS balita ini juga akan ikut terhapus secara permanen.`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await api.delete(`/anak/${anak.id}`);
+      if (res.data.success) {
+        fetchAnak();
+      }
+    } catch (err) {
+      alert('Gagal menghapus data anak: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (isAdmin) return;
@@ -63,7 +101,11 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
     setSubmitting(true);
 
     try {
-      await api.post('/anak', formData);
+      if (modalMode === 'edit' && editId) {
+        await api.put(`/anak/${editId}`, formData);
+      } else {
+        await api.post('/anak', formData);
+      }
       setModalOpen(false);
       fetchAnak();
     } catch (err) {
@@ -157,14 +199,40 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                       </div>
                     </div>
 
-                    {/* Age Badge */}
-                    <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl flex-shrink-0">
-                      {anak.usia_sekarang_bulan} Bln
-                    </span>
+                    {/* Age Badge & Actions (Edit & Delete) */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">
+                        {anak.usia_sekarang_bulan} Bln
+                      </span>
+                      {!isAdmin && (
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(anak)}
+                            className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                            title="Edit Data Balita"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAnak(anak)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Hapus Data Balita"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Detail Info Kontak & Lahir */}
                   <div className="mt-3.5 py-2.5 px-3.5 bg-slate-50/80 rounded-2xl space-y-1.5 text-xs text-slate-600 border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 font-medium">NIK Balita:</span>
+                      <span className="text-slate-700 font-mono font-semibold text-[11px]">{anak.nik || '-'}</span>
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500 font-medium">Jenis Kelamin:</span>
                       <span
@@ -235,16 +303,20 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
         </div>
       )}
 
-      {/* Modal Tambah Balita Baru */}
+      {/* Modal Tambah / Edit Balita */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-soft-lg border border-slate-200 animate-scaleUp">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
-                  Tambah Balita Baru
+                  {modalMode === 'edit' ? 'Edit Data Balita' : 'Tambah Balita Baru'}
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">Daftarkan balita baru ke Posyandu</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {modalMode === 'edit'
+                    ? 'Perbarui identitas balita dan kontak orang tua'
+                    : 'Daftarkan balita baru ke Posyandu'}
+                </p>
               </div>
               <button
                 onClick={() => setModalOpen(false)}
@@ -261,16 +333,29 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
             )}
 
             <form onSubmit={handleSave} className="space-y-3.5 text-xs sm:text-sm">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Nama Lengkap Balita *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Muhammad Rayhan"
-                  value={formData.nama}
-                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-600 focus:bg-white transition-colors"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Nama Lengkap Balita *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Muhammad Rayhan"
+                    value={formData.nama}
+                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">NIK Balita (16 Digit)</label>
+                  <input
+                    type="text"
+                    maxLength="16"
+                    placeholder="3276xxxxxxxxxxxx"
+                    value={formData.nik}
+                    onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -281,7 +366,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                     required
                     value={formData.tgl_lahir}
                     onChange={(e) => setFormData({ ...formData, tgl_lahir: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-600 focus:bg-white transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
                   />
                 </div>
                 <div>
@@ -297,28 +382,40 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Nama Orang Tua *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Ibu Siti Aminah"
-                  value={formData.nama_ortu}
-                  onChange={(e) => setFormData({ ...formData, nama_ortu: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Nama Orang Tua *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Ibu Siti Aminah"
+                    value={formData.nama_ortu}
+                    onChange={(e) => setFormData({ ...formData, nama_ortu: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    No. WhatsApp Ortu *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="08xxxxxxxxxx"
+                    value={formData.no_wa}
+                    onChange={(e) => setFormData({ ...formData, no_wa: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Nomor WhatsApp Orang Tua *
-                </label>
+                <label className="font-bold text-slate-700 block mb-1">Alamat Rumah / RT RW</label>
                 <input
-                  type="tel"
-                  required
-                  placeholder="08xxxxxxxxxx (untuk kirim hasil KMS)"
-                  value={formData.no_wa}
-                  onChange={(e) => setFormData({ ...formData, no_wa: e.target.value })}
+                  type="text"
+                  placeholder="Contoh: Jl. Kenanga No. 12, RT 02/04"
+                  value={formData.alamat}
+                  onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
                 />
               </div>
@@ -336,7 +433,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                   disabled={submitting}
                   className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-soft-sm disabled:opacity-50"
                 >
-                  {submitting ? 'Menyimpan...' : 'Simpan Balita'}
+                  {submitting ? 'Menyimpan...' : modalMode === 'edit' ? 'Simpan Perubahan' : 'Simpan Balita'}
                 </button>
               </div>
             </form>
