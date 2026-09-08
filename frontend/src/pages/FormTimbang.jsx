@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Minus, Plus, MessageSquare, Save, CheckCircle2, ShieldAlert, ChevronDown, Check, X } from 'lucide-react';
+import { Search, Minus, Plus, MessageSquare, Save, CheckCircle2, ShieldAlert, ChevronDown, Check, X, Calendar } from 'lucide-react';
 import api from '../api/client';
 
 export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
@@ -10,8 +10,11 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const [tglTimbang, setTglTimbang] = useState(new Date().toISOString().split('T')[0]);
   const [beratBadan, setBeratBadan] = useState(0.0);
   const [tinggiBadan, setTinggiBadan] = useState(0.0);
+  const [lingkarKepala, setLingkarKepala] = useState('');
+  const [catatan, setCatatan] = useState('');
   const [sendWA, setSendWA] = useState(true);
 
   const [previewGizi, setPreviewGizi] = useState(null);
@@ -34,11 +37,12 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
     }
   };
 
-  const calcPreview = async (jk, tglLahir, bb, tb) => {
+  const calcPreview = async (jk, tglLahir, bb, tb, tglTimb) => {
     try {
       const res = await api.post('/penimbangan/preview', {
         jenis_kelamin: jk,
         tgl_lahir: tglLahir,
+        tgl_timbang: tglTimb || tglTimbang,
         berat_badan: bb,
         tinggi_badan: tb,
       });
@@ -79,11 +83,11 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
 
   useEffect(() => {
     if (selectedAnak && beratBadan > 0 && tinggiBadan > 0) {
-      calcPreview(selectedAnak.jenis_kelamin, selectedAnak.tgl_lahir, beratBadan, tinggiBadan);
+      calcPreview(selectedAnak.jenis_kelamin, selectedAnak.tgl_lahir, beratBadan, tinggiBadan, tglTimbang);
     } else {
       setPreviewGizi(null);
     }
-  }, [selectedAnak, beratBadan, tinggiBadan]);
+  }, [selectedAnak, beratBadan, tinggiBadan, tglTimbang]);
 
   const handleSelectAnak = (anak) => {
     setSelectedAnak(anak);
@@ -115,8 +119,12 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
     try {
       const res = await api.post('/penimbangan', {
         anak_id: selectedAnak.id,
+        tgl_timbang: tglTimbang || new Date().toISOString().split('T')[0],
         berat_badan: beratBadan,
         tinggi_badan: tinggiBadan,
+        lingkar_kepala: lingkarKepala ? parseFloat(lingkarKepala) : null,
+        catatan: catatan ? catatan.trim() : null,
+        petugas_id: user?.id || null,
         send_wa: sendWA,
       });
 
@@ -318,13 +326,35 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
             )}
           </div>
 
-          {/* Card 2 & 3: Stepper Berat Badan & Tinggi Badan (Dirancang Khusus Ramah Ibu Kader) */}
+          {/* Card: Tanggal Penimbangan */}
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <div>
+                <label htmlFor="tgl_timbang_input" className="text-xs sm:text-sm font-bold text-slate-800 block cursor-pointer">
+                  2. Tanggal Penimbangan
+                </label>
+                <p className="text-[11px] text-slate-500">Sesuaikan jika mencatat hasil timbang hari sebelumnya</p>
+              </div>
+            </div>
+            <input
+              id="tgl_timbang_input"
+              type="date"
+              value={tglTimbang}
+              onChange={(e) => setTglTimbang(e.target.value)}
+              className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all cursor-pointer"
+            />
+          </div>
+
+          {/* Card 3 & 4: Stepper Berat Badan & Tinggi Badan (Dirancang Khusus Ramah Ibu Kader) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Berat Badan (kg) */}
             <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-soft-sm text-center space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  2. Berat Badan (kg)
+                  3. Berat Badan (kg)
                 </label>
                 <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
                   Step 0.1 kg
@@ -387,7 +417,7 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
             <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-soft-sm text-center space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  3. Tinggi Badan (cm)
+                  4. Tinggi Badan (cm)
                 </label>
                 <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
                   Step 0.5 cm
@@ -447,7 +477,46 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
             </div>
           </div>
 
-          {/* Card 4: Kirim Notifikasi WhatsApp Otomatis */}
+          {/* Pengukuran Tambahan & Catatan Kader (Opsional) */}
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-soft-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                5. Pengukuran Tambahan & Catatan
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                Opsional
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                  Lingkar Kepala (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="Contoh: 45.0"
+                  value={lingkarKepala}
+                  onChange={(e) => setLingkarKepala(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                  Catatan / Keluhan Balita
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Balita aktif, nafsu makan baik"
+                  value={catatan}
+                  onChange={(e) => setCatatan(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Kirim Notifikasi WhatsApp Otomatis */}
           <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-soft-sm flex items-center justify-between gap-3">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center shrink-0">
@@ -455,7 +524,7 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                  Kirim Notifikasi WhatsApp Otomatis
+                  6. Kirim Notifikasi WhatsApp Otomatis
                 </h4>
                 <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
                   Hasil catatan KMS dan saran gizi langsung masuk ke HP orang tua balita

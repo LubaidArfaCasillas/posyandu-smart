@@ -22,12 +22,17 @@ function previewGizi(req, res) {
 // POST /api/penimbangan (Simpan hasil timbang & kirim WA otomatis)
 async function createPenimbangan(req, res) {
   try {
-    const { anak_id, tgl_timbang, berat_badan, tinggi_badan, lingkar_kepala, catatan, petugas_id, send_wa } = req.body;
+    let { anak_id, tgl_timbang, berat_badan, tinggi_badan, lingkar_kepala, catatan, petugas_id, send_wa } = req.body;
 
-    if (!anak_id || !tgl_timbang || !berat_badan || !tinggi_badan) {
+    // Fallback otomatis ke tanggal hari ini jika tgl_timbang kosong
+    if (!tgl_timbang) {
+      tgl_timbang = new Date().toISOString().slice(0, 10);
+    }
+
+    if (!anak_id || !berat_badan || !tinggi_badan) {
       return res.status(400).json({
         success: false,
-        message: 'Anak, tanggal timbang, berat badan, dan tinggi badan wajib diisi',
+        message: 'Anak, berat badan, dan tinggi badan wajib diisi',
       });
     }
 
