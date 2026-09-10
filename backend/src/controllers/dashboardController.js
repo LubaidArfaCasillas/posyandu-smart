@@ -42,11 +42,11 @@ async function getStats(req, res) {
 
     // Aktivitas Penimbangan Terbaru
     const [recentActivity] = await pool.query(`
-      SELECT p.*, a.nama AS nama_anak, a.jenis_kelamin
+      SELECT p.*, a.nama AS nama_anak, a.jenis_kelamin, a.nama_ortu, a.tgl_lahir
       FROM penimbangan p
       JOIN anak a ON p.anak_id = a.id
       ORDER BY p.id DESC
-      LIMIT 5
+      LIMIT 10
     `);
 
     res.json({

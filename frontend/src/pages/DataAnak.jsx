@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MessageSquare, Scale, TrendingUp, User, UserPlus, X, Phone, Calendar, Pencil, Trash2 } from 'lucide-react';
+import {
+  Search,
+  MessageSquare,
+  Scale,
+  TrendingUp,
+  User,
+  UserPlus,
+  X,
+  Phone,
+  Calendar,
+  Pencil,
+  Trash2,
+  Baby,
+} from 'lucide-react';
 import api from '../api/client';
 
 export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
@@ -115,101 +128,157 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
     }
   };
 
+  const [activeFilterTab, setActiveFilterTab] = useState('all');
+
+  const filteredList = anakList.filter((anak) => {
+    if (activeFilterTab === 'L') return anak.jenis_kelamin === 'L';
+    if (activeFilterTab === 'P') return anak.jenis_kelamin === 'P';
+    return true;
+  });
+
   return (
     <div className="space-y-5">
-      {/* Top Search Bar & Add Button (Add button khusus Kader) */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-          <input
-            type="text"
-            placeholder="Cari nama balita, nama orang tua, atau NIK..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200/90 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 shadow-soft-sm transition-all"
-          />
+      {/* Header & Aksi */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            Data Balita Terdaftar
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Kelola data demografi anak, riwayat KMS, dan nomor WhatsApp orang tua.
+          </p>
         </div>
 
         {!isAdmin && (
           <button
-            type="button"
             onClick={handleOpenAdd}
-            className="px-4 sm:px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-soft-sm transition-all flex items-center gap-2 font-bold text-xs sm:text-sm active:scale-95 shrink-0"
+            className="px-4 py-2.5 bg-[#00a86b] hover:bg-[#00925d] text-white font-bold text-xs sm:text-sm rounded-xl shadow-soft-sm transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0"
           >
             <UserPlus className="w-4 h-4 stroke-[2.5]" />
-            <span className="hidden sm:inline">Tambah Balita Baru</span>
-            <span className="sm:hidden">Tambah</span>
+            <span>Tambah Balita</span>
           </button>
         )}
       </div>
 
-      {/* Grid Balita Cards (Responsif: 1 kolom di HP, 2 kolom di Tablet, 3 kolom di Desktop) */}
+      {/* Bar Pencarian & Filter Kategori */}
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        {/* Input Search */}
+        <div className="relative flex-1 w-full">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <input
+            type="text"
+            placeholder="Cari nama balita, NIK, atau nama orang tua..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] transition-all shadow-soft-sm"
+          />
+        </div>
+
+        {/* Filter Tab Gender */}
+        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-soft-sm shrink-0 w-full sm:w-auto justify-center">
+          <button
+            onClick={() => setActiveFilterTab('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              activeFilterTab === 'all'
+                ? 'bg-emerald-50 text-[#00a86b]'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Semua ({anakList.length})
+          </button>
+          <button
+            onClick={() => setActiveFilterTab('L')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              activeFilterTab === 'L'
+                ? 'bg-sky-50 text-sky-800 border border-sky-100'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Laki-laki
+          </button>
+          <button
+            onClick={() => setActiveFilterTab('P')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              activeFilterTab === 'P'
+                ? 'bg-rose-50 text-rose-800 border border-rose-100'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Perempuan
+          </button>
+        </div>
+      </div>
+
+      {/* Grid Kartu Balita */}
       {loading ? (
-        <div className="text-center py-12 text-xs text-slate-400">
-          <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="p-12 text-center text-xs text-slate-400">
           Memuat data balita...
         </div>
-      ) : anakList.length === 0 ? (
-        <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-slate-200/80 shadow-soft-sm text-xs text-slate-400 space-y-2">
-          <User className="w-10 h-10 mx-auto text-slate-300" />
-          <p className="font-semibold text-slate-600">Belum ada data balita yang cocok.</p>
-          <p className="text-slate-400">Silakan tambahkan data balita baru untuk posyandu ini.</p>
+      ) : filteredList.length === 0 ? (
+        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 shadow-soft-sm space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#00a86b] flex items-center justify-center mx-auto">
+            <User className="w-6 h-6" />
+          </div>
+          <h3 className="font-extrabold text-slate-800 text-sm">Tidak Ada Data Balita</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            {search ? 'Tidak ditemukan data yang sesuai dengan pencarian Anda.' : 'Belum ada data balita yang terdaftar.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {anakList.map((anak) => {
+          {filteredList.map((anak) => {
             const isBoy = anak.jenis_kelamin === 'L';
 
             return (
               <div
                 key={anak.id}
-                className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 flex flex-col justify-between group"
+                className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-soft-sm hover:border-emerald-200 hover:shadow-soft-md transition-all flex flex-col justify-between group"
               >
                 <div>
-                  {/* Header Card: Avatar, Name, Gender & Age */}
-                  <div className="flex items-start justify-between gap-2">
+                  {/* Header Card: Avatar, Nama, Age Badge & Edit/Delete Actions */}
+                  <div className="flex items-start justify-between gap-2.5">
                     <div className="flex items-center gap-3">
-                      {/* Avatar Monogram */}
-                      <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center font-extrabold text-sm shrink-0 border ${
-                          isBoy
-                            ? 'bg-sky-50 text-sky-700 border-sky-200'
-                            : 'bg-rose-50 text-rose-700 border-rose-200'
-                        }`}
-                      >
-                        {anak.nama
-                          ? anak.nama
-                              .split(' ')
-                              .map((n) => n[0])
-                              .slice(0, 2)
-                              .join('')
-                              .toUpperCase()
-                          : 'B'}
+                      <div className="relative shrink-0">
+                        <div className="w-11 h-11 rounded-2xl p-0.5 bg-[#00a86b] shadow-soft-sm">
+                          <div
+                            className={`w-full h-full rounded-[14px] flex items-center justify-center ${
+                              isBoy ? 'bg-sky-50 text-sky-700' : 'bg-rose-50 text-rose-700'
+                            }`}
+                          >
+                            <Baby className="w-5 h-5 stroke-[2.2]" />
+                          </div>
+                        </div>
                       </div>
 
                       <div>
-                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight group-hover:text-sky-700 transition-colors">
-                          {anak.nama}
-                        </h3>
+                        <div className="flex items-center gap-1.5">
+                          <h2 className="font-extrabold text-slate-900 text-sm leading-snug group-hover:text-[#00a86b] transition-colors">
+                            {anak.nama}
+                          </h2>
+                          <span
+                            className="w-4 h-4 rounded-full bg-[#00a86b] text-white flex items-center justify-center text-[9px] shrink-0"
+                            title="Terverifikasi KMS"
+                          >
+                            ✓
+                          </span>
+                        </div>
                         <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                          {anak.nama_ortu?.startsWith('Bpk') || anak.nama_ortu?.startsWith('Ibu')
-                            ? anak.nama_ortu
-                            : `Bpk/Ibu ${anak.nama_ortu}`}
+                          Ortu: <span className="text-slate-700">{anak.nama_ortu || '-'}</span>
                         </p>
                       </div>
                     </div>
 
                     {/* Age Badge & Actions (Edit & Delete) */}
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="px-2 py-0.5 bg-emerald-50 text-[#00a86b] border border-emerald-200/60 text-[11px] font-bold rounded-lg">
                         {anak.usia_sekarang_bulan} Bln
                       </span>
                       {!isAdmin && (
-                        <div className="flex items-center gap-0.5">
+                        <div className="flex items-center">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(anak)}
-                            className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                            className="p-1 text-slate-400 hover:text-[#00a86b] hover:bg-emerald-50 rounded-lg transition-colors"
                             title="Edit Data Balita"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -217,7 +286,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                           <button
                             type="button"
                             onClick={() => handleDeleteAnak(anak)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Hapus Data Balita"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -228,16 +297,18 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                   </div>
 
                   {/* Detail Info Kontak & Lahir */}
-                  <div className="mt-3.5 py-2.5 px-3.5 bg-slate-50/80 rounded-2xl space-y-1.5 text-xs text-slate-600 border border-slate-100">
+                  <div className="mt-3.5 py-2 px-3 bg-[#f0f7f4] rounded-xl space-y-1 text-xs text-slate-600 border border-emerald-100/60">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500 font-medium">NIK Balita:</span>
-                      <span className="text-slate-700 font-mono font-semibold text-[11px]">{anak.nik || '-'}</span>
+                      <span className="text-slate-800 font-mono font-semibold text-[11px]">
+                        {anak.nik || '-'}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500 font-medium">Jenis Kelamin:</span>
                       <span
-                        className={`font-bold px-2 py-0.5 rounded-md text-[11px] ${
-                          isBoy ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'
+                        className={`font-bold px-2 py-0.5 rounded-md text-[10px] ${
+                          isBoy ? 'bg-sky-50 text-sky-800 border border-sky-100' : 'bg-rose-50 text-rose-800 border border-rose-100'
                         }`}
                       >
                         {isBoy ? 'Laki-laki' : 'Perempuan'}
@@ -247,37 +318,31 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                       <span className="text-slate-500 font-medium">No. WhatsApp:</span>
                       <strong className="text-slate-800 font-semibold">{anak.no_wa || '-'}</strong>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Tanggal Lahir:</span>
-                      <span className="text-slate-700">
-                        {new Date(anak.tgl_lahir).toLocaleDateString('id-ID')}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
                 {/* Divider Line & Action Buttons */}
                 <div>
-                  <hr className="my-3.5 border-slate-100" />
+                  <hr className="my-3 border-slate-100" />
 
                   <div className="flex items-center gap-2">
-                    {/* WhatsApp */}
+                    {/* WhatsApp Button */}
                     <a
                       href={`https://wa.me/${anak.no_wa}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 py-2.5 px-2.5 border border-emerald-300 hover:bg-emerald-50 text-emerald-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                      title="Hubungi Orang Tua via WhatsApp"
+                      className="flex-1 py-2 px-2 border border-[#00a86b] hover:bg-emerald-50 text-[#00a86b] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                      title="Hubungi via WhatsApp"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                      <MessageSquare className="w-3.5 h-3.5 text-[#00a86b]" />
                       <span>WhatsApp</span>
                     </a>
 
-                    {/* Tombol Timbang khusus Kader */}
+                    {/* Tombol Timbang */}
                     {!isAdmin && (
                       <button
                         onClick={() => onSelectForTimbang(anak.id)}
-                        className="flex-1 py-2.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-soft-sm"
+                        className="flex-1 py-2 px-2 bg-[#00a86b] hover:bg-[#00925d] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-soft-sm"
                       >
                         <Scale className="w-3.5 h-3.5 text-white" />
                         <span>Timbang</span>
@@ -288,18 +353,31 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                     <button
                       onClick={() => onViewKms(anak.id)}
                       className={`${
-                        isAdmin ? 'flex-1 py-2.5 px-2.5' : 'w-10 h-10'
-                      } bg-slate-900 hover:bg-slate-800 text-white rounded-xl flex items-center justify-center shadow-soft-sm transition-all shrink-0 gap-1.5 text-xs font-bold active:scale-95`}
+                        isAdmin ? 'flex-1 py-2 px-2' : 'w-9 h-9'
+                      } bg-[#00a86b] hover:bg-[#00925d] text-white rounded-xl flex items-center justify-center shadow-soft-sm transition-all shrink-0 gap-1.5 text-xs font-bold active:scale-95`}
                       title="Lihat Lembar KMS Digital"
                     >
-                      <TrendingUp className="w-4 h-4" />
-                      {isAdmin && <span>KMS Balita</span>}
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      {isAdmin && <span>KMS</span>}
                     </button>
                   </div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Tombol Bawah (+ Tambah Balita Baru) */}
+      {!isAdmin && (
+        <div className="pt-2">
+          <button
+            onClick={handleOpenAdd}
+            className="w-full py-3 bg-white hover:bg-emerald-50 text-[#00a86b] font-extrabold text-xs sm:text-sm rounded-2xl border-2 border-[#00a86b] transition-all flex items-center justify-center gap-2 shadow-soft-sm active:scale-98"
+          >
+            <UserPlus className="w-4 h-4 stroke-[2.5]" />
+            <span>+ Tambah Balita Baru</span>
+          </button>
         </div>
       )}
 
@@ -312,53 +390,55 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                 <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
                   {modalMode === 'edit' ? 'Edit Data Balita' : 'Tambah Balita Baru'}
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500">
                   {modalMode === 'edit'
-                    ? 'Perbarui identitas balita dan kontak orang tua'
+                    ? 'Perbarui data identitas balita'
                     : 'Daftarkan balita baru ke Posyandu'}
                 </p>
               </div>
               <button
                 onClick={() => setModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-700">
                 {errorMsg}
               </div>
             )}
 
-            <form onSubmit={handleSave} className="space-y-3.5 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Nama Lengkap Balita *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Muhammad Rayhan"
-                    value={formData.nama}
-                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">NIK Balita (16 Digit)</label>
-                  <input
-                    type="text"
-                    maxLength="16"
-                    placeholder="3276xxxxxxxxxxxx"
-                    value={formData.nik}
-                    onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
-                  />
-                </div>
+            <form onSubmit={handleSave} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  NIK Balita (16 Digit) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={16}
+                  placeholder="35xxxxxxxxxxxxxx"
+                  value={formData.nik}
+                  onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Nama Lengkap Balita *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Muhammad Rizky"
+                  value={formData.nama}
+                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">Tanggal Lahir *</label>
                   <input
@@ -366,7 +446,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                     required
                     value={formData.tgl_lahir}
                     onChange={(e) => setFormData({ ...formData, tgl_lahir: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
                   />
                 </div>
                 <div>
@@ -374,7 +454,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                   <select
                     value={formData.jenis_kelamin}
                     onChange={(e) => setFormData({ ...formData, jenis_kelamin: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
                   >
                     <option value="L">Laki-laki</option>
                     <option value="P">Perempuan</option>
@@ -391,7 +471,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                     placeholder="Contoh: Ibu Siti Aminah"
                     value={formData.nama_ortu}
                     onChange={(e) => setFormData({ ...formData, nama_ortu: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
                   />
                 </div>
                 <div>
@@ -404,7 +484,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                     placeholder="08xxxxxxxxxx"
                     value={formData.no_wa}
                     onChange={(e) => setFormData({ ...formData, no_wa: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
@@ -416,7 +496,7 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                   placeholder="Contoh: Jl. Kenanga No. 12, RT 02/04"
                   value={formData.alamat}
                   onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] focus:bg-white transition-colors"
                 />
               </div>
 
@@ -431,9 +511,13 @@ export default function DataAnak({ user, onSelectForTimbang, onViewKms }) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-soft-sm disabled:opacity-50"
+                  className="flex-1 py-3 bg-[#00a86b] hover:bg-[#00925d] text-white font-bold rounded-xl transition-all shadow-soft-sm disabled:opacity-50"
                 >
-                  {submitting ? 'Menyimpan...' : modalMode === 'edit' ? 'Simpan Perubahan' : 'Simpan Balita'}
+                  {submitting
+                    ? 'Menyimpan...'
+                    : modalMode === 'edit'
+                    ? 'Simpan Perubahan'
+                    : 'Simpan Balita'}
                 </button>
               </div>
             </form>

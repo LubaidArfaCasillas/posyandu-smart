@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, Scale, Ruler, Calendar, Check, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { MessageSquare, Plus, Scale, Ruler, Calendar, Check, AlertCircle, TrendingUp, TrendingDown, Minus, Baby } from 'lucide-react';
 import api from '../api/client';
 import KmsChart from '../components/KmsChart';
 
@@ -132,90 +132,95 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
         </div>
       ) : (
         <>
-          {/* Card Profil Balita */}
-          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-soft-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-4">
-              {/* Monogram Inisial Avatar */}
-              <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center font-extrabold text-base shrink-0 border ${
-                  isBoy
-                    ? 'bg-sky-50 text-sky-700 border-sky-200'
-                    : 'bg-rose-50 text-rose-700 border-rose-200'
-                }`}
-              >
-                {initials}
+          {/* Card Profil Balita (Identik dengan Layar Tengah Gambar 2: Profil dengan Circular Avatar, Cincin Hijau & 3 Kotak Metrik) */}
+          <div className="bg-white rounded-3xl p-5 sm:p-7 border border-emerald-100/80 shadow-soft-sm space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                {/* Circular Avatar dengan Cincin Hijau & Verified Badge (Identik dengan Referensi Image 2) */}
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 rounded-full p-1 bg-[#00a86b] shadow-soft-sm">
+                    <div
+                      className={`w-full h-full rounded-full flex items-center justify-center border-2 border-white ${
+                        isBoy
+                          ? 'bg-sky-50 text-sky-700'
+                          : 'bg-rose-50 text-rose-700'
+                      }`}
+                    >
+                      <Baby className="w-8 h-8 stroke-[2.2]" />
+                    </div>
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#00a86b] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white shadow-xs">
+                    ✓
+                  </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
+                      {anakDetail.nama}
+                    </h2>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                        isBoy
+                          ? 'bg-sky-50 text-sky-700 border-sky-200'
+                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                      }`}
+                    >
+                      {isBoy ? 'Laki-laki' : 'Perempuan'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                    Orang Tua: <span className="font-bold text-slate-800">{anakDetail.nama_ortu}</span> • WA: <span className="font-semibold text-slate-800">{anakDetail.no_wa || '-'}</span>
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
-                    {anakDetail.nama}
-                  </h2>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                      isBoy
-                        ? 'bg-sky-50 text-sky-700 border-sky-200'
-                        : 'bg-rose-50 text-rose-700 border-rose-200'
-                    }`}
-                  >
-                    {isBoy ? 'Laki-laki' : 'Perempuan'}
-                  </span>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleResendWA}
+                  disabled={resending}
+                  className="px-4 py-2.5 rounded-xl border border-[#00a86b] hover:bg-emerald-50 text-[#00a86b] text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  <MessageSquare className="w-4 h-4 text-[#00a86b]" />
+                  <span>{resending ? 'Mengirim...' : 'Kirim Laporan WA'}</span>
+                </button>
 
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-slate-500">
-                  <span>
-                    Usia:{' '}
-                    <strong className="text-slate-800 font-bold">
-                      {anakDetail.usia_sekarang_bulan} Bulan
-                    </strong>
-                  </span>
-                  <span>•</span>
-                  <span>
-                    Lahir:{' '}
-                    <span className="text-slate-700 font-medium">
-                      {new Date(anakDetail.tgl_lahir).toLocaleDateString('id-ID')}
-                    </span>
-                  </span>
-                  <span>•</span>
-                  <span>
-                    Orang Tua:{' '}
-                    <strong className="text-slate-800 font-semibold">{anakDetail.nama_ortu}</strong>
-                  </span>
-                  {anakDetail.no_wa && (
-                    <>
-                      <span>•</span>
-                      <span>
-                        WA:{' '}
-                        <span className="text-slate-800 font-medium">{anakDetail.no_wa}</span>
-                      </span>
-                    </>
-                  )}
-                </div>
+                {!isAdmin && onNavigateToTimbang && (
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToTimbang(anakDetail.id)}
+                    className="px-5 py-2.5 bg-[#00a86b] hover:bg-[#00925d] text-white text-xs sm:text-sm font-bold rounded-xl shadow-soft-sm transition-all flex items-center gap-2 active:scale-95"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Timbang Baru</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Tombol Aksi Cepat */}
-            <div className="flex items-center gap-2.5 self-start md:self-auto shrink-0 flex-wrap">
-              {!isAdmin && onNavigateToTimbang && (
-                <button
-                  type="button"
-                  onClick={() => onNavigateToTimbang(anakDetail.id)}
-                  className="px-4 py-2.5 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-soft-sm transition-all flex items-center gap-2 active:scale-95"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Input Timbang Baru</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={handleResendWA}
-                disabled={resending}
-                className="px-4 py-2.5 rounded-xl border border-emerald-300 hover:bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span>{resending ? 'Mengirim...' : 'Kirim Laporan WA'}</span>
-              </button>
+            {/* 3 Kotak Metrik Profil */}
+            <div className="grid grid-cols-3 gap-3 p-3.5 bg-[#f0f7f4] rounded-2xl border border-emerald-100/70 text-center">
+              <div>
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 block uppercase">Usia Balita</span>
+                <span className="text-sm sm:text-lg font-extrabold text-slate-900 mt-0.5 block">
+                  {anakDetail.usia_sekarang_bulan} <span className="text-xs font-semibold text-slate-500">Bulan</span>
+                </span>
+              </div>
+              <div className="border-x border-emerald-200/60">
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 block uppercase">BB Terakhir</span>
+                <span className="text-sm sm:text-lg font-extrabold text-[#00a86b] mt-0.5 block">
+                  {latestRecord ? `${latestRecord.berat_badan} kg` : '-'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 block uppercase">TB Terakhir</span>
+                <span className="text-sm sm:text-lg font-extrabold text-slate-900 mt-0.5 block">
+                  {latestRecord ? `${latestRecord.tinggi_badan} cm` : '-'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -250,10 +255,10 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
                       return (
                         <div
                           key={rec.id}
-                          className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-soft-sm flex items-center justify-between hover:border-emerald-300/80 transition-colors"
+                          className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-soft-sm flex items-center justify-between hover:border-emerald-200 transition-colors"
                         >
                           <div className="flex items-center gap-3.5">
-                            <div className="w-11 h-11 bg-emerald-50 border border-emerald-200/80 rounded-xl flex flex-col items-center justify-center text-emerald-800 shrink-0">
+                            <div className="w-11 h-11 bg-emerald-50 border border-emerald-200/80 rounded-xl flex flex-col items-center justify-center text-[#00a86b] shrink-0">
                               <span className="text-[9px] font-bold uppercase leading-none">Bln</span>
                               <span className="text-base font-extrabold leading-tight">{rec.usia_bulan}</span>
                             </div>
@@ -284,7 +289,7 @@ export default function RiwayatKms({ initialAnakId, onNavigateToTimbang, user })
                             className={`px-2.5 py-1 text-xs font-bold rounded-full border shrink-0 ${
                               isStunting
                                 ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-emerald-50 text-[#00a86b] border-emerald-200'
                             }`}
                           >
                             {rec.status_tb_u || 'Normal'}

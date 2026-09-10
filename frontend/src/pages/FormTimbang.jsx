@@ -540,7 +540,7 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
                 onChange={(e) => setSendWA(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 shadow-inner" />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00a86b] shadow-inner" />
             </label>
           </div>
 
@@ -549,11 +549,11 @@ export default function FormTimbang({ user, onNavigateToAnak, onSaved }) {
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-soft-sm transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50"
+            className="w-full py-4 bg-[#00a86b] hover:bg-[#00925d] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-soft-sm transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50"
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-5 h-5 stroke-[2.2]" />
             <span>
-              {loading ? 'Menyimpan & Menghitung Standar WHO...' : 'Simpan & Rekam Penimbangan Balita'}
+              {loading ? 'Menyimpan & Menghitung Standar WHO...' : 'Simpan & Kirim Notifikasi WhatsApp'}
             </span>
           </button>
         </div>

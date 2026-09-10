@@ -143,9 +143,9 @@ export default function KelolaKader() {
   return (
     <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Header Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-soft-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-100/80 shadow-soft-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#00a86b] uppercase tracking-wider">
             <UserCheck className="w-4 h-4" />
             <span>MANAJEMEN KADER POSYANDU</span>
           </div>
@@ -159,7 +159,7 @@ export default function KelolaKader() {
 
         <button
           onClick={handleOpenAdd}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-soft-sm flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95"
+          className="bg-[#00a86b] hover:bg-[#00925d] text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-soft-sm flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Kader Baru</span>
@@ -169,7 +169,7 @@ export default function KelolaKader() {
       {/* Alert Success */}
       {successMsg && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-800 flex items-center gap-2.5 animate-fadeIn">
-          <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <CheckCircle className="w-5 h-5 text-[#00a86b] flex-shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
@@ -381,7 +381,7 @@ export default function KelolaKader() {
                 <button
                   type="submit"
                   disabled={submitLoading}
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-soft-sm disabled:opacity-50 transition-all active:scale-95"
+                  className="px-5 py-2.5 bg-[#00a86b] hover:bg-[#00925d] text-white font-bold rounded-xl shadow-soft-sm disabled:opacity-50 transition-all active:scale-95"
                 >
                   {submitLoading ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Tambah Kader'}
                 </button>

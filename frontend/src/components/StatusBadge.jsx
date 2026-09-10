@@ -9,7 +9,7 @@ export default function StatusBadge({ status, size = 'md' }) {
   let badgeStyle = {
     container: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
     icon: CheckCircle2,
-    iconColor: 'text-emerald-600',
+    iconColor: 'text-[#00a86b]',
   };
 
   if (s.includes('stunting') || s.includes('sangat pendek') || s.includes('buruk')) {
@@ -26,15 +26,15 @@ export default function StatusBadge({ status, size = 'md' }) {
     };
   } else if (s.includes('gizi baik')) {
     badgeStyle = {
-      container: 'bg-sky-50 text-sky-800 border-sky-200/80',
-      icon: HeartHandshake,
-      iconColor: 'text-sky-600',
+      container: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+      icon: CheckCircle2,
+      iconColor: 'text-[#00a86b]',
     };
   } else if (s.includes('normal')) {
     badgeStyle = {
       container: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
       icon: CheckCircle2,
-      iconColor: 'text-emerald-600',
+      iconColor: 'text-[#00a86b]',
     };
   }
 
@@ -59,4 +59,3 @@ export default function StatusBadge({ status, size = 'md' }) {
     </span>
   );
 }
-
